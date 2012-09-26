@@ -1,0 +1,54 @@
+#frametable {
+    border-spacing: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+#leftcontent {
+    width: 204px;
+    resize: horizontal;
+}
+
+#bodycontent {
+    margin: 3px; /* from default theme's body */
+}
+#body {
+    width: 100%;
+}
+#leftcontent , #bodycontent {
+    height:66.6mm; /* will be overwritten by jQuery */
+    overflow:auto;
+}
+
+#left, #body {
+    vertical-align:top;
+}
+body, html {
+    height: 100%;
+    overflow: hidden; /* to prevent scrollbar from appearing before jQuery updates height */
+}
+
+#bodycontent table {
+    border-collapse: separate;
+    border-spacing: 2px; 
+}
+
+.browsertree li {
+  margin-left: 20px;
+}
+
+.browsertree ul {
+  -moz-padding-start: 0;
+  -webkit-padding-start: 0;
+}
+
+.browsertree button {
+  font-size: 50%;
+}
+
+input, select {
+  font-size: 1.2em;
+}
+input[type="submit"], input[type="button"] {
+  font-size: inherit;
+}

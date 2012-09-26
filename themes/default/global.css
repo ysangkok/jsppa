@@ -1,0 +1,259 @@
+/**
+ * Default style sheet
+ */
+
+/** ELEMENTS */
+body.default {
+	background-color: #FFFFFF;
+	margin:	4px;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	padding: 0px;
+	font-size: smaller; /*0.8em;*/
+}
+body.default div.logo {
+	background-color: #CECF9C;
+	margin:	0px;
+	padding: 0px;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-size: smaller; /* 1em; */
+	border: none;
+	border-bottom: 2px solid #000000;
+	margin-bottom: 2px;
+}
+body.default #leftcontent {
+	background-color: #efefef;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+/*	font-size: smaller; /*1em;*/
+	border-right: 1px dashed #c0c0c0;
+}
+body.default .bottombar {
+	background-color: #CECF9C;
+	margin:	0px;
+	padding: 0px;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-size: smaller; /*1em;*/
+	text-align: left;
+}
+body.default h2 {
+	color: #666633;
+	font-size: medium; /*1.3em;*/
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-weight: bold;
+	border: 2px solid #E6E6CC;
+	background-color: #F3F3E9;
+	padding: 2px 1em;
+	margin: 0 0 1ex 0;
+}
+body.default h3 {
+	color: #666633;
+	font-size: small;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-weight: bold;
+}
+body.default table.error {background-color: #E6E6CC}
+body.default table.error td {background-color: #E6E6CC}
+body.default table.navbar {background-color: #E6E6CC}
+body.default table.navbar td {
+	height:	25px;
+	color: #000000;
+	background-color: #F3F3E9;
+	text-align: center;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-size: smaller; /* 0.9em */
+	font-weight: bold;
+}
+body.default table.navbar td.active {background-color: #E6E6CC}
+body.default th.data {
+	color: #000000;
+	background-color: #E6E6CC;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-size: smaller; /* 0.9em */
+}
+body.default th.data a:active, body.default th.data a:link, body.default th.data a:visited, body.default th.data a:hover {
+	font-weight: bold;
+}
+body.default td.dat {
+	color: #ff0;
+	text-align: center;
+}
+body.default th.required {text-decoration: underline}
+body.default td.topbar {
+	background-color: #CECF9C;
+	margin:	0px	0px;
+	padding: 0px;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-size: smaller; /*0.8em;*/
+	text-align: left;
+}
+body.default ul.toplink,body.default ul.navlink {
+	list-style: none;
+	margin:0;padding:0;
+}
+body.default ul.navlink{margin:20px 0}
+body.default ul.toplink li, body.default ul.navlink li {
+	display:inline;
+	border-left:1px solid #000000;
+	margin:0;padding: 0 2px 0 5px;
+}
+body.default ul.toplink li:first-child, body.default ul.navlink li:first-child {
+	border: none;
+	padding-left:0;
+}
+body.default tr.data1, body.default tr.data2, body.default tr.data3 {
+	color: #000000;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-size: smaller; /*0.8em;*/
+}
+body.default tr.data1:hover, body.default tr.data2:hover, body.default tr.data3:hover {
+	background-color: #DDD;
+}
+body.default .row1, body.default .data1 {
+	background-color: #F3F3E9;
+	text-align: left;
+}
+body.default .row2, body.default .data2 {
+	background-color: #E6E6CC;
+	text-align: left;
+}
+body.default .row3, body.default .data3 {background-color: #F3F3E9}
+body.default td.opbutton1 {
+	color: #000000;
+	border-top:	1px solid #FFFFFF;
+	border-right: 1px solid	#706D41;
+	border-bottom: 1px solid #706D41;
+	border-left: 1px solid #FFFFFF;
+	cursor:	pointer;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-size: smaller; /*0.8em;*/
+	padding-left: 6px;
+	padding-right: 6px;
+	text-align: center;
+}
+body.default td.opbutton2 {
+	color: #000000;
+	border-top:	1px solid #FFFFFF;
+	border-right: 1px solid	#706D41;
+	border-bottom: 1px solid #706D41;
+	border-left: 1px solid #FFFFFF;
+	cursor:	pointer;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-size: smaller; /*0.8em;*/
+	padding-left: 6px;
+	padding-right: 6px;
+	text-align: center;
+}
+body.default .topbar {border: 2px solid #CECF9C}
+body.default .topbar, body.default .topbar * {
+	background-color: #CECF9C;
+}
+body.default .topbar .platform, body.default .topbar .host, body.default .topbar .username {
+	font-weight: bold;
+}
+body.default .topbar, body.default .trail {
+	margin-bottom: 2px;
+}
+body.default .topbar, body.default .trail, body.default .tab {
+	padding: 2px 1ex;
+	font-size: smaller;
+}
+body.default .trail, body.default .tab {
+	border: 2px solid #E6E6CC;
+	background-color: #F3F3E9;
+}
+body.default .trail .crumb {background-color: #F3F3E9}
+body.default .crumb, body.default .tab {
+	vertical-align: top;
+}
+body.default .crumb .icon {
+	vertical-align: middle;
+	margin: 0 2px;
+}
+body.default table.tabs {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 1ex;
+}
+body.default .tab {text-align: center}
+body.default .tabs .active {background-color: #E6E6CC}
+body.default .tab .icon {display: block}
+body.default a:active {
+	color: #989973;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-weight: normal;
+	text-decoration: underline;
+}
+body.default a,body.default a:link {
+	color: #336699;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	text-decoration: none;
+}
+body.default a:visited {
+	color: #336699;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	text-decoration: none;
+}
+body.default a:hover {
+	color: #cc0000;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	text-decoration: none;
+}
+body.default a.navlink:link, body.default a.toplink:link, body.default ul.navlink li a, body.default ul.toplink li a {
+	color: #336699;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-weight: bold;
+	text-decoration: none;
+}
+body.default a.navlink:visited, body.default a.toplink:visited, body.default ul.navlink li a:visited, body.default ul.toplink li a:visited {
+	color: #336699;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-weight: bold;
+	text-decoration: none;
+}
+body.default a.navlink:hover, body.default a.toplink:hover, body.default ul.navlink li a:hover, body.default ul.toplink li a:hover {
+	color: #cc0000;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-weight: bold;
+	text-decoration: none;
+}
+body.default a.navlink:active, body.default a.toplink:active, body.default ul.navlink li a:active, body.default ul.toplink li a:active {
+	color: #cc0000;
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-weight: bold;
+	text-decoration: none;
+}
+body.default .active a {font-weight: bold}
+body.default a.help {
+	color: #E68800;
+	font-size: smaller;
+	vertical-align: super;
+	text-decoration: none;
+}
+body.default pre {font-size: 110%}
+body.default pre.data {
+	font-family: arial, tahoma, verdana, helvetica, sans-serif, serif;
+	font-size: 100%;
+}
+body.default pre.error {
+	font-family: "Lucida Console", "Courier New", "DejaVu Sans Mono", monospace;
+	font-size: 120%;
+}
+body.default .intro li {font-weight: bold}
+body.default .ac_field {border:1px solid #D9D95F}
+body.default .bottom_link {
+	background: #eee;
+	border-top: 1px dotted #999;
+	border-left: 1px dotted #999;
+	font-size: smaller;
+}
+
+body.default .browsertree { margin-top: -1em; }
+
+/** FK browsing **/
+body.default div#root > div.fk {
+	border: 1px solid #000;
+}
+body.default div.fk {
+    background: #fff;
+	border-left: 1px solid #000;
+	padding: 5px;
+}

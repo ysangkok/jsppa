@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="{{t.applocale}}" dir="{{t.applangdir}}" ng-app="myApp">
+<head>
+<script src="/jsppa/es6-shim/es6-shim.js"></script>
+<link rel="stylesheet" href="/jsppa/normalize.css" type="text/css" />
+<script src="http://code.angularjs.org/1.0.2/angular.js"></script>
+<script src="http://code.angularjs.org/1.0.2/angular-resource.js"></script>
+<script src="http://code.angularjs.org/1.0.2/angular-sanitize.js"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="/jsppa/themes/global.css" type="text/css" />
+<link rel="stylesheet" href="/jsppa/themes/cappuccino/global.css" type="text/css" />
+<link rel="stylesheet" href="/jsppa/themes/default/global.css" type="text/css" />
+<link rel="stylesheet" href="/jsppa/themes/gotar/global.css" type="text/css" />
+<link rel="stylesheet" href="/jsppa/themes/janus.css" type="text/css" />
+<!--
+<link rel="shortcut icon" href="images/themes/cappuccino/Favicon.ico" type="image/vnd.microsoft.icon" />
+<link rel="icon" type="image/png" href="images/themes/cappuccino/Introduction.png" />
+-->
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<title>jsPgAdmin</title>
+<!--
+<script src="languages.php"></script>
+-->
+<script src="/jsppa/sprintf.js"></script>
+<script src="/websockify/include/base64.js"></script>
+<script src="/websockify/include/util.js"></script>
+<script src="/websockify/include/websock.js"></script>
+<script src="/node-postgres/bundle.js"></script>
+<script src="/jsppa/app.js"></script>
+<script type="text/javascript">
+var updateHeight = function() {
+  var newHeight = $("body").height() + "px";
+  $("#leftcontent , #bodycontent").css("height",newHeight);  
+};
+
+$(window).resize(updateHeight);
+$(document).ready(updateHeight);
+</script>
+<base href="/jsppa/">
+</head>
+<body class="{{theme.id}}">
+<table id="frametable">
+<tr>
+  <td id="left">
+    <div id="leftcontent">
+<div class="logo"><a href="intro.php" target="detail"><img src="/jsppa/images/themes/{{theme.id}}/title.png" width="200" height="50" alt="phpPgAdmin" title="phpPgAdmin" /></a></div>
+
+<!-- tree -->
+<script type="text/ng-template"  id="tree_item_renderer.html">
+    {{data.name}}
+    <button ng-click="add(data)">Add node</button>
+    <button ng-click="delete(data)" ng-show="data.nodes.length > 0">Delete nodes</button>
+    <ul>
+        <li ng-repeat="data in data.nodes" ng-include="'tree_item_renderer.html'"></li>
+    </ul>
+</script>
+
+<div class="browsertree">
+<ul  ng-controller="TreeController">
+    <li ng-repeat="data in tree" ng-include="'tree_item_renderer.html'"></li>
+</ul>
+</div>
+<!-- /tree -->
+    </div>
+  </td>
+  <td id="body">
+    <div id="bodycontent">
+<div class="topbar" ng-controller="TopBarCtrl"><table style="width: 100%"><tr><td ng-bind-html="content"></td><td style="text-align:right"><ul class="toplink"><li ng-repeat="link in links"><a href="{{link.url}}">{{link.desc}}</a></li></ul></td></tr></table></div>
+<div class="trail"><table><tr><td class="crumb"><a href="/jsppa/root/intro"><span class="icon"><img src="/jsppa/images/themes/default/Introduction.png" alt="Database Root" /></span><span class="label">phpPgAdmin</span></a>: </td></tr></table></div>
+
+<script type="text/ng-template" id="rootheader">
+
+<table class="tabs" ng-controller="NavBarCtrl"><tr>
+<td style="width: 50%" class="tab" ng-class="getClass('/root/intro')"><a href="/jsppa/root/intro"><span class="icon"><img src="/jsppa/images/themes/default/Introduction.png" alt="{{t.strintroduction}}" /></span><span class="label">{{t.strintroduction}}</span></a></td>
+<td style="width: 50%" class="tab" ng-class="getClass('/root/servers')"><a href="/jsppa/root/servers"><span class="icon"><img src="/jsppa/images/themes/default/Servers.png" alt="{{t.strservers}}" /></span><span class="label">{{t.strservers}}</span></a></td>
+</tr></table>
+
+</script>
+<script type="text/ng-template" id="/root/intro">
+
+<ng-include src="'rootheader'"></ng-include>
+
+<h1>jsPgAdmin</h1>
+
+<table>
+	<tr class="data1" ng-controller="LanguageCtrl">
+		<th class="data">{{t.strlanguage}}</th>
+		<td>
+			<select  ng-change="languageChange()" ng-model="currentLanguage" ng-options="lan.nativename for lan in langFiles">
+			</select>
+		</td>
+	</tr>
+	<tr class="data2" ng-controller="ThemeCtrl">
+		<th class="data">{{t.strtheme}}</th>
+		<td>
+			<select ng-change="themeChange()" ng-model="theme" ng-options="th.name for th in themes">
+			</select>
+		</td>
+	</tr>
+</table>
+
+<p>{{t.strintro}}</p>
+
+<ul class="intro">
+	<li><a href="http://www.postgresql.org/">{{t.strpgsqlhome}}</a></li>
+	<li><a href="http://phppgadmin.sourceforge.net/doku.php?id=faq">{{t.strviewfaq}}</a></li>
+	<li><a target="_top" href="../ppa/tests/selenium/selenium-lib/core/TestRunner.html?test=%2Fjsppa%2FTestSuite.php&amp;resultsUrl=..%2FpostResults">Selenium tests</a></li>
+</ul>
+
+</script>
+
+<script type="text/ng-template" id="/root/servers">
+
+<ng-include src="'rootheader'"></ng-include>
+<div ng-controller="ServersCtrl">
+<p class="message">{{message2}}</p>
+<table>
+<tr>
+<th class="data">{{t.strserver}}</th>
+<th class="data">{{t.strhost}}</th>
+<th class="data">{{t.strport}}</th>
+<th class="data">{{t.strusername}}</th>
+<th class="data">{{t.stractions}}</th>
+</tr>
+<tr class="data1" ng-repeat="server in servers">
+<td><a href="/jsppa/root/servers/{{$index}}">{{server.desc}}</a></td>
+<td>{{server.host}}</td>
+<td>{{server.port}}</td>
+<td>{{getUsername($index)}}</td>
+<td>
+        <button ng-repeat="action in actions[$index]" ng-click="action.do()">{{action.desc}}</button>
+</td>
+</tr>
+</table>
+</div>
+
+</script>
+
+<script type="text/ng-template" id="/root/servers/n">
+{{serverNum}}
+</script>
+
+<script type="text/ng-template" id="/root/servers/n/login">
+<div ng-controller="LoginCtrl">
+<h2>{{sprintf(t.strlogintitle,server.desc)}}</h2>
+<p class="message">{{message}}</p>
+<form ng-submit="submit()" >
+	<table class="navbar" border="0" cellpadding="5" cellspacing="3">
+		<tr>
+			<td>Username</td>
+			<td><input type="text" ng-model="username" size="24"></td>
+		</tr>
+		<tr>
+			<td>Password</td>
+			<td><input type="password" ng-model="password" size="24"></td>
+		</tr>
+	</table>
+	<p><input type="submit" value="{{t.strlogin}}"></p>
+</form>
+</div>
+</script>
+
+<script type="text/ng-template" id="/root/servers/n/databases">
+</script>
+
+<ng-view></ng-view>
+
+
+<a href="#" class="bottom_link">{{t.strgotoppage}}</a>
+
+  </td>
+</tr>
+</table>
+</body>
+</html>
