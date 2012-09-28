@@ -1,3 +1,5 @@
+.null { font-style: italic; text-transform:uppercase; }
+.message { white-space: pre; }
 #frametable {
     border-spacing: 0;
     position: absolute;

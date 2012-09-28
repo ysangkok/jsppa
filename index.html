@@ -65,7 +65,7 @@ $(document).ready(updateHeight);
   </td>
   <td id="body">
     <div id="bodycontent">
-<div class="topbar" ng-controller="TopBarCtrl"><table style="width: 100%"><tr><td ng-bind-html="content"></td><td style="text-align:right"><ul class="toplink"><li ng-repeat="link in links"><a href="{{link.url}}">{{link.desc}}</a></li></ul></td></tr></table></div>
+<div class="topbar" ng-controller="TopBarCtrl"><table style="width: 100%"><tr><td ng-bind-html="content"></td><td style="text-align:right"><ul class="toplink"><li ng-repeat="link in links"><a href="/jsppa{{link.url}}">{{link.desc}}</a></li></ul></td></tr></table></div>
 <div class="trail"><table><tr><td class="crumb"><a href="/jsppa/root/intro"><span class="icon"><img src="/jsppa/images/themes/default/Introduction.png" alt="Database Root" /></span><span class="label">phpPgAdmin</span></a>: </td></tr></table></div>
 
 <script type="text/ng-template" id="rootheader">
@@ -159,8 +159,57 @@ $(document).ready(updateHeight);
 </form>
 </div>
 </script>
+<script type="text/ng-template" id="/root/servers/n/sql">
+<div ng-controller="SqlCtrl">
+<h2>Execute SQL</h2>
+<div style="float:left" >
+<p class="message">{{message}}</a>
+<textarea ng-model="sqltext" rows="20" cols="80"></textarea>
+<button ng-click="executesql();">{{t.strexecute}}</button>
+</div>
+<table>
+<tr>
+<th class="data" ng-repeat="column in columns">{{column}}</th>
+</tr>
+<tr ng-class-odd="'data1'" ng-class-even="'data2'" ng-repeat="row in rows">
+<td ng-repeat="column in row">
+<span ng-class="{null: column.isNull}">
+{{column.data}}
+</span>
+</td>
+</tr>
+</table>
+</div>
+</script>
 
 <script type="text/ng-template" id="/root/servers/n/databases">
+<div ng-controller="DatabasesCtrl">
+<p class="message">{{message}}</p>
+<table>
+<tr>
+<th class="data">Database</th>
+<th class="data">Owner</th>
+<th class="data">Encoding</th>
+<th class="data">Collation</th>
+<th class="data">Character Type</th>
+<th class="data">Tablespace</th>
+<th class="data">Size</th>
+<th class="data">Actions</th>
+<th class="data">Comment</th>
+</tr>
+<tr ng-repeat="database in databases">
+<td>{{database.name}}</td>
+<td>{{database.owner}}</td>
+<td>{{database.encoding}}</td>
+<td>{{database.collation}}</td>
+<td>{{database.charactertype}}</td>
+<td>{{database.tablespace}}</td>
+<td>{{database.size}}</td>
+<td><button ng-repeat="action for database.actions">{{action.desc}}</button></td>
+<td>{{database.comment}}</td>
+</tr>
+</table>
+</div>
 </script>
 
 <ng-view></ng-view>

@@ -118,17 +118,99 @@ module.controller("ServersCtrl", ['$scope', 'ConnectionSvc', '$rootScope', funct
 	$scope.makeActions();
 }]);
 
+function isLoggedIn($routeParams, connectionSvc, $location) {
+	if (!connectionSvc.connections[$routeParams.serverNum]) {
+		$location.path("/root/servers/" + $routeParams.serverNum + "/login");
+		return false;
+	}
+	return true;
+}
+
 module.controller("ServerCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '$location', function($scope, connectionSvc, $routeParams, $location) {
 	connectionSvc.servers;
 	$scope.serverNum = $routeParams.serverNum;
-	if (!connectionSvc.connections[$scope.serverNum]) {
-		$location.path("/root/servers/" + $scope.serverNum + "/login");
-	} else {
-		$location.path("/root/servers/" + $scope.serverNum + "/databases");
-	}
+	if (!isLoggedIn($routeParams, connectionSvc, $location)) return;
+	$location.path("/root/servers/" + $scope.serverNum + "/databases");
 }]);
 
 
+  var after = function($scope,callback) {
+    if (!$scope || !callback) throw new Error("missing argument!");
+    return function(err, queryResult) {
+      if(err) {
+        $scope.message += "\n" + err.toString();
+	console.error(err);
+	$scope.$apply();
+      } else {
+        callback(queryResult);
+      }
+    };
+  };
+
+
+module.controller("DatabasesCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '$location', function($scope, connectionSvc, $routeParams, $location) {
+	if (!isLoggedIn($routeParams, connectionSvc, $location)) return;
+	var con = connectionSvc.connections[$routeParams.serverNum];
+	$scope.message = "";
+	$scope.databases = [];
+	// {owner: ..., encoding: ..., collation: ..., character-type: ..., tablespace: ..., size: ..., actions: ..., comment: ...}
+	pg.connect(con.conString, after($scope,function(client) {
+		client.query(
+[
+"SELECT pdb.datname AS datname, pr.rolname AS datowner, pg_encoding_to_char(encoding) AS datencoding,",
+"					(SELECT description FROM pg_catalog.pg_shdescription pd WHERE pdb.oid=pd.objoid) AS datcomment,",
+"					(SELECT spcname FROM pg_catalog.pg_tablespace pt WHERE pt.oid=pdb.dattablespace) AS tablespace,",
+"					CASE WHEN pg_catalog.has_database_privilege(current_user, pdb.oid, 'CONNECT') ",
+"						THEN pg_catalog.pg_database_size(pdb.oid) ",
+"						ELSE -1 -- set this magic value, which we will convert to no access later  ",
+"					END as dbsize, pdb.datcollate, pdb.datctype",
+"				FROM pg_catalog.pg_database pdb",
+"					LEFT JOIN pg_catalog.pg_roles pr ON (pdb.datdba = pr.oid)",
+"				WHERE true",
+"					 AND pdb.datallowconn",
+"					",
+"				ORDER BY pdb.datname",
+].join("\n"),after($scope,function(client){
+			client.rows.map(function(row){
+				$scope.databases.push({name: row.datname, owner: row.datowner, encoding: row.datencoding, collation: row.datcollate, charactertype: row.datctype, tablespace: row.tablespace, size: row.dbsize, actions: [], comment: row.datcomment});
+			});
+			$scope.$apply();
+		}));
+	}));
+}]);
+
+module.controller("SqlCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '$location', function($scope, connectionSvc, $routeParams, $location) {
+	if (!isLoggedIn($routeParams, connectionSvc, $location)) return;
+	var con = connectionSvc.connections[$routeParams.serverNum];
+        $scope.message = "";
+	$scope.sqltext = 	"SELECT table_schema,table_name\n" +
+				"FROM information_schema.tables\n" + 
+				"ORDER BY table_schema,table_name;";
+	$scope.executesql = function() {
+	pg.connect(con.conString, after($scope,function(client) {
+		client.query($scope.sqltext, after($scope,function(client){
+			$scope.columns = [];
+			if (client.rows.length > 0) {
+				for (var i in client.rows[0]) {
+					if (client.rows[0].hasOwnProperty(i)) {
+						$scope.columns.push(i);
+					}
+				}
+			}
+			$scope.rows = client.rows;
+			$scope.rows = $scope.rows.map(function(row) {
+				return Object.keys(row).map(function(key) {
+					var field = row[key];
+					if (field === null)	return {isNull: true, data: "null" }
+					else			return {isNull: false, data: field }
+				});
+			});
+			$scope.$apply();
+		}));
+	}));
+	};
+
+}]);
 module.controller("LoginCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '$location', function($scope, connectionSvc, $routeParams, $location) {
 	//$scope.$routeParams = $routeParams;
 	$scope.sprintf = window.sprintf;
@@ -139,19 +221,8 @@ module.controller("LoginCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '$loc
 	$scope.message = "";
 	$scope.submit = function() {
 		var conString = {"host": server.host, "port": server.port, "password": $scope.password, "user": $scope.username, "database": server.defaultdb};
-  var after = function(callback) {
-    return function(err, queryResult) {
-      if(err) {
-        $scope.message = err.toString();
-	console.log(err);
-	$scope.$apply();
-      } else {
-        callback(queryResult);
-      }
-    };
-  };
   
-  pg.connect(conString, after(function(client) {
+  pg.connect(conString, after($scope,function(client) {
     connectionSvc.connections.push({"server": Number($scope.serverNum), "conString": conString, "username": $scope.username});
 
     $location.path("/root/servers/" + $scope.serverNum + "/databases");
@@ -170,16 +241,15 @@ module.controller("TopBarCtrl", ['$rootScope', '$scope', 'ConnectionSvc', '$rout
 		if (conns.length === 0) {
 			$scope.content = "unknown state";
 		} else {
-			pg.connect(conns[0].conString,function(err,client){client.query("SELECT VERSION() as version",function(err, result) {
-				if (err) { console.error(err); return; }
+			pg.connect(conns[0].conString,after($scope,function(client){client.query("SELECT VERSION() as version",after($scope,function(result) {
 				$scope.content = "<span class='platform'>" + "PostgreSQL " + sprintf($rootScope.t.strtopbar,result.rows[0].version.split(" ")[1] + "</span>", "<span class='host'>" + connectionSvc.servers[conns[0].server].host + "</span>", "<span class='port'>" + connectionSvc.servers[conns[0].server].port + "</span>", "<span class='username'>" + conns[0].username + "</span>");
 				$scope.$apply();
-			});});
+			}));}));
 		}
 	} else {
 		$scope.content = "jsPgAdmin";
 	}
-	$scope.links = [];
+	$scope.links = [{url: "/root/servers/"+$routeParams.serverNum+"/sql", desc: 'SQL'}];
 	// format : {url: ..., desc: ...}
 	}
 	$scope.$watch("$location.path()", $scope.fun);
@@ -196,6 +266,7 @@ module.config([
        .when('/root/servers/:serverNum', {template : '<ng-include src="\'/root/servers/n\'"></ng-view>', controller: 'ServerCtrl'})
        .when('/root/servers/:serverNum/login', {template : '<ng-include src="\'/root/servers/n/login\'"></ng-view>'})
        .when('/root/servers/:serverNum/databases', {template : '<ng-include src="\'/root/servers/n/databases\'"></ng-view>'})
+       .when('/root/servers/:serverNum/sql', {template : '<ng-include src="\'/root/servers/n/sql\'"></ng-view>'})
 
        .when('/404', {template: '<h1>404: {{problem}}<br><a target="_self" href="/jsppa{{fix.url}}">{{fix.desc}}</a></h1>', controller: function($scope,$location) {$scope.problem = $location.search().requested + " not found"; $scope.fix={"url":$location.search().requested,"desc": "try again"}}})
        .otherwise({redirectTo: function(routeParam, path, search){ return '/404?requested=' + path; }});
