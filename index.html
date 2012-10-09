@@ -86,8 +86,10 @@ $(document).ready(updateHeight);
 	<tr class="data1" ng-controller="LanguageCtrl">
 		<th class="data">{{t.strlanguage}}</th>
 		<td>
-			<select  ng-change="languageChange()" ng-model="currentLanguage" ng-options="lan.nativename for lan in langFiles">
+			<form action="donkey" method="get">
+			<select name="language" ng-change="languageChange()" ng-model="currentLanguage" ng-options="lan.nativename for lan in langFiles">
 			</select>
+			</form>
 		</td>
 	</tr>
 	<tr class="data2" ng-controller="ThemeCtrl">
@@ -148,14 +150,14 @@ $(document).ready(updateHeight);
 	<table class="navbar" border="0" cellpadding="5" cellspacing="3">
 		<tr>
 			<td>Username</td>
-			<td><input type="text" ng-model="username" size="24"></td>
+			<td><input id="loginUsername" name="loginUsername" type="text" ng-model="username" size="24"></td>
 		</tr>
 		<tr>
 			<td>Password</td>
-			<td><input type="password" ng-model="password" size="24"></td>
+			<td><input id="loginPassword" type="password" ng-model="password" size="24"></td>
 		</tr>
 	</table>
-	<p><input type="submit" value="{{t.strlogin}}"></p>
+	<p><input name="loginSubmit" type="submit" value="{{t.strlogin}}"></p>
 </form>
 </div>
 </script>
@@ -163,9 +165,11 @@ $(document).ready(updateHeight);
 <div ng-controller="SqlCtrl">
 <h2>Execute SQL</h2>
 <div style="float:left" >
+<form ng-submit="executesql()">
 <p class="message">{{message}}</a>
 <textarea ng-model="sqltext" rows="20" cols="80"></textarea>
-<button ng-click="executesql();">{{t.strexecute}}</button>
+<input type="submit" value="{{t.strexecute}}">
+</form>
 </div>
 <table>
 <tr>
@@ -226,11 +230,12 @@ $(document).ready(updateHeight);
 <!-- TODO -->
 <div ng-controller="DBCreateCtrl">
 <h2>Create database<a class="help" href="help.php?help=pg.database.create&amp;server=localhost%3A5432%3Aallow" title="Help" target="phppgadminhelp">?</a></h2>
+<form ng-submit="submit()">
 <p class="message">{{message}}</p>
 <table>
 	<tr>
 		<th class="data left required">Name</th>
-		<td class="data1"><input name="formName" size="32" maxlength="63" value="" /></td>
+		<td class="data1"><input ng-model="newDBName" size="32" maxlength="63" /></td>
 	</tr>
 	<tr>
 		<th class="data left required">Template</th>
@@ -305,6 +310,10 @@ $(document).ready(updateHeight);
 		<td><textarea name="formComment" rows="3" cols="32"></textarea></td>
 	</tr>
 </table>
+<p>
+<input type="submit" value="Create">
+</p>
+</form>
 </div>
 </script>
 

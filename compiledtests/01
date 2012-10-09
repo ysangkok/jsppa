@@ -1,0 +1,125 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
+import unittest, time, re
+
+class PostgreSQLRolesUsersAndGroupsTests(unittest.TestCase):
+    def setUp(self):
+        self.driver = webdriver.Firefox()
+        self.driver.implicitly_wait(5)
+        self.base_url = "http://localhost:8800/"
+        self.verificationErrors = []
+    
+    def test_postgre_s_q_l_roles_users_and_groups_tests(self):
+        driver = self.driver
+        driver.get("http://localhost:8800/ppa/intro.php")
+        Select(driver.find_element_by_name("language")).select_by_visible_text("English")
+        driver.get("http://localhost:8800/ppa/login.php?server=localhost:5432:allow&subject=server")
+        driver.find_element_by_xpath("//input[@name='loginUsername']").clear()
+        driver.find_element_by_xpath("//input[@name='loginUsername']").send_keys("janus")
+        driver.find_element_by_xpath("//input[@id='loginPassword']").clear()
+        driver.find_element_by_xpath("//input[@id='loginPassword']").send_keys("secret")
+        driver.find_element_by_name("loginSubmit").click()
+        self.assertEqual("janus", driver.find_element_by_xpath("//div[@class='topbar']/descendant::span[@class='username']").text)
+        driver.find_element_by_link_text("Roles").click()
+        driver.find_element_by_link_text("Create role").click()
+        driver.find_element_by_name("formRolename").clear()
+        driver.find_element_by_name("formRolename").send_keys("admin_user")
+        driver.find_element_by_name("formCreateRole").click()
+        driver.find_element_by_name("formInherits").click()
+        driver.find_element_by_name("formCanLogin").click()
+        driver.find_element_by_name("formPassword").clear()
+        driver.find_element_by_name("formPassword").send_keys("superbad")
+        driver.find_element_by_name("formConfirm").clear()
+        driver.find_element_by_name("formConfirm").send_keys("super")
+        driver.find_element_by_name("formSuper").click()
+        driver.find_element_by_name("formCreateDB").click()
+        driver.find_element_by_name("create").click()
+        self.assertEqual("Password does not match confirmation.", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_name("formPassword").clear()
+        driver.find_element_by_name("formPassword").send_keys("super")
+        driver.find_element_by_name("formConfirm").clear()
+        driver.find_element_by_name("formConfirm").send_keys("super")
+        driver.find_element_by_name("create").click()
+        self.assertEqual("Role created.", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::tr/td[1]/a/span[@class='label' and text()='phpPgAdmin']").click()
+        driver.find_element_by_link_text("Servers").click()
+        driver.find_element_by_xpath("//tr/td/a[text()='PostgreSQL']/../../td/a[text()='Logout']").click()
+        self.assertEqual("Logged out of PostgreSQL", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.get("http://localhost:8800/ppa/intro.php")
+        Select(driver.find_element_by_name("language")).select_by_visible_text("English")
+        driver.get("http://localhost:8800/ppa/login.php?server=localhost:5432:allow&subject=server")
+        driver.find_element_by_xpath("//input[@name='loginUsername']").clear()
+        driver.find_element_by_xpath("//input[@name='loginUsername']").send_keys("admin_user")
+        driver.find_element_by_xpath("//input[@id='loginPassword']").clear()
+        driver.find_element_by_xpath("//input[@id='loginPassword']").send_keys("super")
+        driver.find_element_by_name("loginSubmit").click()
+        self.assertEqual("admin_user", driver.find_element_by_xpath("//div[@class='topbar']/descendant::span[@class='username']").text)
+        driver.find_element_by_link_text("Roles").click()
+        driver.find_element_by_link_text("Create role").click()
+        driver.find_element_by_name("formRolename").clear()
+        driver.find_element_by_name("formRolename").send_keys("ppa_tests_usertoalter")
+        if not driver.find_element_by_name("formCanLogin").is_selected():
+            driver.find_element_by_name("formCanLogin").click()
+        if not driver.find_element_by_name("formCreateRole").is_selected():
+            driver.find_element_by_name("formCreateRole").click()
+        if not driver.find_element_by_name("formInherits").is_selected():
+            driver.find_element_by_name("formInherits").click()
+        if not driver.find_element_by_name("formSuper").is_selected():
+            driver.find_element_by_name("formSuper").click()
+        if not driver.find_element_by_name("formCreateDB").is_selected():
+            driver.find_element_by_name("formCreateDB").click()
+        driver.find_element_by_name("formPassword").clear()
+        driver.find_element_by_name("formPassword").send_keys("ppa_tests_user_passtoalter")
+        driver.find_element_by_name("formConfirm").clear()
+        driver.find_element_by_name("formConfirm").send_keys("ppa_tests_user_passtoalter")
+        driver.find_element_by_name("create").click()
+        self.assertEqual("Role created.", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("ppa_tests_usertoalter", driver.find_element_by_xpath("//tr/td/a[text()='ppa_tests_usertoalter']").text)
+        self.assertEqual("Yes", driver.find_element_by_xpath("//tr/td/a[text()='ppa_tests_usertoalter']/../../td[2]").text)
+        self.assertEqual("Yes", driver.find_element_by_xpath("//tr/td/a[text()='ppa_tests_usertoalter']/../../td[3]").text)
+        self.assertEqual("Yes", driver.find_element_by_xpath("//tr/td/a[text()='ppa_tests_usertoalter']/../../td[4]").text)
+        self.assertEqual("Yes", driver.find_element_by_xpath("//tr/td/a[text()='ppa_tests_usertoalter']/../../td[5]").text)
+        self.assertEqual("Yes", driver.find_element_by_xpath("//tr/td/a[text()='ppa_tests_usertoalter']/../../td[6]").text)
+        driver.find_element_by_link_text("Roles").click()
+        driver.find_element_by_link_text("ppa_tests_usertoalter").click()
+        driver.find_element_by_link_text("Alter").click()
+        driver.find_element_by_name("formNewRoleName").clear()
+        driver.find_element_by_name("formNewRoleName").send_keys("ppa_tests_user")
+        if driver.find_element_by_name("formCreateRole").is_selected():
+            driver.find_element_by_name("formCreateRole").click()
+        if driver.find_element_by_name("formInherits").is_selected():
+            driver.find_element_by_name("formInherits").click()
+        if driver.find_element_by_name("formSuper").is_selected():
+            driver.find_element_by_name("formSuper").click()
+        if driver.find_element_by_name("formCreateDB").is_selected():
+            driver.find_element_by_name("formCreateDB").click()
+        driver.find_element_by_name("formPassword").clear()
+        driver.find_element_by_name("formPassword").send_keys("ppa_tests_user_pass")
+        driver.find_element_by_name("formConfirm").clear()
+        driver.find_element_by_name("formConfirm").send_keys("ppa_tests_user_pass")
+        driver.find_element_by_name("alter").click()
+        self.assertEqual("Role altered.", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("ppa_tests_user", driver.find_element_by_xpath("//tr/td/a[text()='ppa_tests_user']").text)
+        self.assertEqual("No", driver.find_element_by_xpath("//tr/td/a[text()='ppa_tests_user']/../../td[2]").text)
+        self.assertEqual("No", driver.find_element_by_xpath("//tr/td/a[text()='ppa_tests_user']/../../td[3]").text)
+        self.assertEqual("No", driver.find_element_by_xpath("//tr/td/a[text()='ppa_tests_user']/../../td[4]").text)
+        self.assertEqual("No", driver.find_element_by_xpath("//tr/td/a[text()='ppa_tests_user']/../../td[5]").text)
+        self.assertEqual("Yes", driver.find_element_by_xpath("//tr/td/a[text()='ppa_tests_user']/../../td[6]").text)
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::tr/td[1]/a/span[@class='label' and text()='phpPgAdmin']").click()
+        driver.find_element_by_link_text("Servers").click()
+        driver.find_element_by_xpath("//tr/td/a[text()='PostgreSQL']/../../td/a[text()='Logout']").click()
+        self.assertEqual("Logged out of PostgreSQL", driver.find_element_by_xpath("//p[@class='message']").text)
+    
+    def is_element_present(self, how, what):
+        try: self.driver.find_element(by=how, value=what)
+        except NoSuchElementException, e: return False
+        return True
+    
+    def tearDown(self):
+        self.driver.quit()
+        self.assertEqual([], self.verificationErrors)
+
+if __name__ == "__main__":
+    unittest.main()

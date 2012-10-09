@@ -1,0 +1,99 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
+import unittest, time, re
+
+class PostgreSQLDomainTests(unittest.TestCase):
+    def setUp(self):
+        self.driver = webdriver.Firefox()
+        self.driver.implicitly_wait(5)
+        self.base_url = "http://localhost:8800/"
+        self.verificationErrors = []
+    
+    def test_postgre_s_q_l_domain_tests(self):
+        driver = self.driver
+        driver.get("http://localhost:8800/ppa/intro.php")
+        Select(driver.find_element_by_name("language")).select_by_visible_text("English")
+        driver.get("http://localhost:8800/ppa/login.php?server=localhost:5432:allow&subject=server")
+        driver.find_element_by_xpath("//input[@name='loginUsername']").clear()
+        driver.find_element_by_xpath("//input[@name='loginUsername']").send_keys("admin_user")
+        driver.find_element_by_xpath("//input[@id='loginPassword']").clear()
+        driver.find_element_by_xpath("//input[@id='loginPassword']").send_keys("super")
+        driver.find_element_by_name("loginSubmit").click()
+        self.assertEqual("admin_user", driver.find_element_by_xpath("//div[@class='topbar']/descendant::span[@class='username']").text)
+        driver.find_element_by_link_text("Databases").click()
+        driver.find_element_by_link_text("ppatests_db").click()
+        driver.find_element_by_link_text("Schemas").click()
+        driver.find_element_by_link_text("test_schema").click()
+        driver.find_element_by_link_text("Domains").click()
+        driver.find_element_by_link_text("Create domain").click()
+        driver.find_element_by_name("domname").clear()
+        driver.find_element_by_name("domname").send_keys("year")
+        Select(driver.find_element_by_name("domtype")).select_by_visible_text("integer")
+        driver.find_element_by_name("domdefault").clear()
+        driver.find_element_by_name("domdefault").send_keys("1900")
+        driver.find_element_by_name("domnotnull").click()
+        driver.find_element_by_name("domcheck").clear()
+        driver.find_element_by_name("domcheck").send_keys("VALUE >= 1901 AND VALUE <= 2155")
+        driver.find_element_by_xpath("//input[@value='Create']").click()
+        self.assertEqual("Domain created.", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("year", driver.find_element_by_xpath("//tr/td/a[text()='year']").text)
+        self.assertEqual("integer", driver.find_element_by_xpath("//tr/td/a[text()='year']/../../td[2]").text)
+        self.assertEqual("NOT NULL", driver.find_element_by_xpath("//tr/td/a[text()='year']/../../td[3]/div").text)
+        self.assertEqual("1900", driver.find_element_by_xpath("//tr/td/a[text()='year']/../../td[4]").text)
+        self.assertEqual("admin_user", driver.find_element_by_xpath("//tr/td/a[text()='year']/../../td[5]").text)
+        driver.find_element_by_link_text("year").click()
+        self.assertEqual("CHECK (VALUE >= 1901 AND VALUE <= 2155)", driver.find_element_by_xpath("//tr/td[text()='year_check']/../td[2]").text)
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::a[@title='Schema']/span[@class='label' and text()='test_schema']").click()
+        driver.find_element_by_link_text("Domains").click()
+        driver.find_element_by_link_text("year").click()
+        driver.find_element_by_xpath("//a[text()='Add check']").click()
+        driver.find_element_by_name("name").clear()
+        driver.find_element_by_name("name").send_keys("test_to_drop")
+        driver.find_element_by_name("definition").clear()
+        driver.find_element_by_name("definition").send_keys("VALUE > 1900")
+        driver.find_element_by_name("add").click()
+        self.assertEqual("Check constraint added.", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("CHECK (VALUE > 1900)", driver.find_element_by_xpath("//tr/td[text()='test_to_drop']/../td[2]").text)
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::a[@title='Schema']/span[@class='label' and text()='test_schema']").click()
+        driver.find_element_by_link_text("Domains").click()
+        driver.find_element_by_link_text("year").click()
+        driver.find_element_by_xpath("//tr/td[text()='test_to_drop']/../td/a[text()='Drop']").click()
+        self.assertRegexpMatches(driver.find_element_by_xpath("//p[text()='Are you sure you want to drop the constraint \"test_to_drop\" on \"year\"?']").text, "^Are you sure you want to drop the constraint \"test_to_drop\" on \"year\"[\\s\\S]$")
+        driver.find_element_by_name("drop").click()
+        self.assertEqual("Constraint dropped.", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::a[@title='Schema']/span[@class='label' and text()='test_schema']").click()
+        driver.find_element_by_link_text("Domains").click()
+        driver.find_element_by_xpath("//tr/td/a[text()='year']/../../td/a[text()='Alter']").click()
+        driver.find_element_by_name("domnotnull").click()
+        driver.find_element_by_name("domdefault").clear()
+        driver.find_element_by_name("domdefault").send_keys("extract(year from current_date)")
+        Select(driver.find_element_by_name("domowner")).select_by_visible_text("janus")
+        driver.find_element_by_name("alter").click()
+        self.assertEqual("Domain altered.", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("", driver.find_element_by_xpath("//tr/th[text()='Not Null']/../td").text)
+        self.assertEqual("janus", driver.find_element_by_xpath("//tr/th[text()='Owner']/../td").text)
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::a[@title='Schema']/span[@class='label' and text()='test_schema']").click()
+        driver.find_element_by_link_text("Domains").click()
+        driver.find_element_by_xpath("//tr/td/a[text()='year']/../../td/a[text()='Alter']").click()
+        Select(driver.find_element_by_name("domowner")).select_by_visible_text("admin_user")
+        driver.find_element_by_name("alter").click()
+        self.assertEqual("Domain altered.", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("admin_user", driver.find_element_by_xpath("//tr/th[text()='Owner']/../td").text)
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::tr/td[1]/a/span[@class='label' and text()='phpPgAdmin']").click()
+        driver.find_element_by_link_text("Servers").click()
+        driver.find_element_by_xpath("//tr/td/a[text()='PostgreSQL']/../../td/a[text()='Logout']").click()
+        self.assertEqual("Logged out of PostgreSQL", driver.find_element_by_xpath("//p[@class='message']").text)
+    
+    def is_element_present(self, how, what):
+        try: self.driver.find_element(by=how, value=what)
+        except NoSuchElementException, e: return False
+        return True
+    
+    def tearDown(self):
+        self.driver.quit()
+        self.assertEqual([], self.verificationErrors)
+
+if __name__ == "__main__":
+    unittest.main()

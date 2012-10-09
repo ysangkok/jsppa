@@ -164,6 +164,7 @@ module.controller("DBCreateCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '$
 	$scope.databases = [];
 	$scope.tablespaces = [];
 	$scope.templateDB = null;
+	$scope.newDBName = "";
 	$scope.selectedTablespace = null;
 	var i = 0, template1idx;
 	pg.connect(con.conString, after($scope,function(client) {
@@ -191,9 +192,22 @@ module.controller("DBCreateCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '$
 			$scope.$apply();
 		}));
 	}));
+	$scope.submit = function() {
+		pg.connect(con.conString, after($scope,function(client) {
+			client.query({text:'CREATE DATABASE "' + $scope.newDBName + '" WITH TEMPLATE = "' + $scope.templateDB.name + '"'},after($scope,function(){
+				$location.path("/root/servers/" + $scope.serverNum + "/databases");
+				$scope.$apply();
+			}));
+		}));
+	};
 
 }]);
 
+function dropDBs($scope, con, databasenames, cb) {
+	pg.connect(con.conString, after($scope,function(client) {
+		databasenames.map(function(name) {client.query('DROP DATABASE "' + name + '"',after($scope, function() {$scope.message += name + ": " + "Database dropped\n"; $scope.$apply(); cb(); }))});
+	}));
+}
 
 module.controller("DatabasesCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '$location', function($scope, connectionSvc, $routeParams, $location) {
 	if (!isLoggedIn($routeParams, connectionSvc, $location)) return;
@@ -210,7 +224,7 @@ module.controller("DatabasesCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '
 		})
 	}
 
-	$scope.onitemclick = function() {
+	$scope.onitemclick = ($scope.recountChecked = function() {
 		if ($('.db_check_item:checked').length === 0) {
 			$scope.isgreyed = false;
 			$scope.master = false;
@@ -221,7 +235,7 @@ module.controller("DatabasesCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '
 			$scope.isgreyed = true;
 		}
 		$scope.updateMaster();
-	}
+	});
 
 	var con = connectionSvc.connections[$routeParams.serverNum];
 	$scope.message = "";
@@ -243,17 +257,26 @@ module.controller("DatabasesCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '
 "					 AND pdb.datallowconn",
 "					",
 "				ORDER BY pdb.datname",
-].join("\n"),after($scope,function(client){
-			client.rows.map(function(row){
-				$scope.databases.push({isSelected: false, name: row.datname, owner: row.datowner, encoding: row.datencoding, collation: row.datcollate, charactertype: row.datctype, tablespace: row.tablespace, size: getHumanSize(Number(row.dbsize)), actions: [
-					{desc: "Drop", fun: function() {alert("drop " + row.datname); /* TODO */ } },
+].join("\n"),after($scope,function(result){
+			result.rows.map(function(row){
+				var obj;
+				$scope.databases.push(obj = {isSelected: false, name: row.datname, owner: row.datowner, encoding: row.datencoding, collation: row.datcollate, charactertype: row.datctype, tablespace: row.tablespace, size: getHumanSize(Number(row.dbsize)), actions: [
+					{desc: "Drop", fun: function() { dropDBs($scope, con, [row.datname], function() {
+						$scope.databases = $scope.databases.filter(function(v) { return v !== obj; });
+						$scope.$apply();
+						$scope.recountChecked();
+					}); } },
 					{desc: "Privileges", fun: function() {} },
 					{desc: "Alter", fun: function() {} },
 				], comment: row.datcomment});
 			});
 			$scope.actionsForSelected = [
 				{desc: "--", fun: function() {} }, 
-				{desc: "Drop", fun: function() { alert("drop!"); /* TODO */ } }
+				{desc: "Drop", fun: function() { dropDBs($scope, con, $scope.databases.filter(function(v) {return v.isSelected}).map(function(v){return v.name}), function() {
+					$scope.databases = $scope.databases.filter(function(v) { return !v.isSelected; });
+					$scope.$apply();
+					$scope.recountChecked();
+				}); } }
 			];
 			$scope.selectedAction = $scope.actionsForSelected[0];
 			$scope.$watch("selectedAction", function() {
