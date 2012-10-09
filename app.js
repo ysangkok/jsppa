@@ -147,9 +147,82 @@ module.controller("ServerCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '$lo
     };
   };
 
+function getHumanSize(size) {
+  var SizePrefixes = ['','K','M','G','T','P','E','Z','Y'];
+  if(size <= 0) return '0';
+  var t2 = Math.min(Math.floor(Math.log(size)/Math.log(1024)),
+                    SizePrefixes.length-1);
+  return String((Math.round(size * 100 / Math.pow(1024, t2)) / 100)) + 
+         ' ' + SizePrefixes[t2] + 'iB';
+}
+
+module.controller("DBCreateCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '$location', function($scope, connectionSvc, $routeParams, $location) {
+	if (!isLoggedIn($routeParams, connectionSvc, $location)) return;
+	$scope.serverNum = $routeParams.serverNum;
+	var con = connectionSvc.connections[$routeParams.serverNum];
+	$scope.message = "";
+	$scope.databases = [];
+	$scope.tablespaces = [];
+	$scope.templateDB = null;
+	$scope.selectedTablespace = null;
+	var i = 0, template1idx;
+	pg.connect(con.conString, after($scope,function(client) {
+		client.query("SELECT pdb.datname AS datname FROM pg_catalog.pg_database pdb WHERE pdb.datallowconn ORDER BY pdb.datname",after($scope,function(client){
+			client.rows.map(function(row){
+				$scope.databases.push({	
+					name: row.datname
+				});
+				if (row.datname === "template1") template1idx = i++; else i++;
+			});
+			$scope.databases.push({name: "template0"});
+			$scope.templateDB = $scope.databases[template1idx];
+			$scope.$apply();
+		}));
+		client.query("SELECT spcname, pg_catalog.pg_get_userbyid(spcowner) AS spcowner, spclocation,\n" +
+                             "(SELECT description FROM pg_catalog.pg_shdescription pd WHERE pg_tablespace.oid=pd.objoid) AS spccomment\n" +
+                             "                   FROM pg_catalog.pg_tablespace ORDER BY spcname", after($scope, function(client) {
+			$scope.tablespaces.push({name: ''});
+			client.rows.map(function(row){
+				$scope.tablespaces.push({
+					name: row.spcname
+				});
+			});
+			$scope.selectedTablespace = $scope.tablespaces[0];
+			$scope.$apply();
+		}));
+	}));
+
+}]);
+
 
 module.controller("DatabasesCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '$location', function($scope, connectionSvc, $routeParams, $location) {
 	if (!isLoggedIn($routeParams, connectionSvc, $location)) return;
+	$scope.serverNum = $routeParams.serverNum;
+
+	$scope.$watch("$scope.isgreyed", $scope.updateMaster = function() {
+		$("#db_check_all_none").prop("indeterminate", $scope.isgreyed);
+	});
+	$scope.isgreyed = false;
+	$scope.master = false;
+	$scope.onmasterclick = function() {
+		$scope.databases.map(function(v) {
+			v.isSelected = $scope.master;
+		})
+	}
+
+	$scope.onitemclick = function() {
+		if ($('.db_check_item:checked').length === 0) {
+			$scope.isgreyed = false;
+			$scope.master = false;
+		} else if ($('.db_check_item:not(:checked)').length === 0) {
+			$scope.isgreyed = false;
+			$scope.master = true;
+		} else {
+			$scope.isgreyed = true;
+		}
+		$scope.updateMaster();
+	}
+
 	var con = connectionSvc.connections[$routeParams.serverNum];
 	$scope.message = "";
 	$scope.databases = [];
@@ -172,7 +245,20 @@ module.controller("DatabasesCtrl", ['$scope', 'ConnectionSvc', '$routeParams', '
 "				ORDER BY pdb.datname",
 ].join("\n"),after($scope,function(client){
 			client.rows.map(function(row){
-				$scope.databases.push({name: row.datname, owner: row.datowner, encoding: row.datencoding, collation: row.datcollate, charactertype: row.datctype, tablespace: row.tablespace, size: row.dbsize, actions: [], comment: row.datcomment});
+				$scope.databases.push({isSelected: false, name: row.datname, owner: row.datowner, encoding: row.datencoding, collation: row.datcollate, charactertype: row.datctype, tablespace: row.tablespace, size: getHumanSize(Number(row.dbsize)), actions: [
+					{desc: "Drop", fun: function() {alert("drop " + row.datname); /* TODO */ } },
+					{desc: "Privileges", fun: function() {} },
+					{desc: "Alter", fun: function() {} },
+				], comment: row.datcomment});
+			});
+			$scope.actionsForSelected = [
+				{desc: "--", fun: function() {} }, 
+				{desc: "Drop", fun: function() { alert("drop!"); /* TODO */ } }
+			];
+			$scope.selectedAction = $scope.actionsForSelected[0];
+			$scope.$watch("selectedAction", function() {
+				$scope.selectedAction.fun();
+				$scope.selectedAction = $scope.actionsForSelected[0];
 			});
 			$scope.$apply();
 		}));
@@ -266,6 +352,7 @@ module.config([
        .when('/root/servers/:serverNum', {template : '<ng-include src="\'/root/servers/n\'"></ng-view>', controller: 'ServerCtrl'})
        .when('/root/servers/:serverNum/login', {template : '<ng-include src="\'/root/servers/n/login\'"></ng-view>'})
        .when('/root/servers/:serverNum/databases', {template : '<ng-include src="\'/root/servers/n/databases\'"></ng-view>'})
+       .when('/root/servers/:serverNum/databases/create', {template : '<ng-include src="\'/root/servers/n/databases/create\'"></ng-view>'})
        .when('/root/servers/:serverNum/sql', {template : '<ng-include src="\'/root/servers/n/sql\'"></ng-view>'})
 
        .when('/404', {template: '<h1>404: {{problem}}<br><a target="_self" href="/jsppa{{fix.url}}">{{fix.desc}}</a></h1>', controller: function($scope,$location) {$scope.problem = $location.search().requested + " not found"; $scope.fix={"url":$location.search().requested,"desc": "try again"}}})

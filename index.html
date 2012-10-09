@@ -43,7 +43,7 @@ $(document).ready(updateHeight);
 <tr>
   <td id="left">
     <div id="leftcontent">
-<div class="logo"><a href="intro.php" target="detail"><img src="/jsppa/images/themes/{{theme.id}}/title.png" width="200" height="50" alt="phpPgAdmin" title="phpPgAdmin" /></a></div>
+<div class="logo"><a href="/jsppa/root/intro" target="detail"><img src="/jsppa/images/themes/{{theme.id}}/title.png" width="200" height="50" alt="phpPgAdmin" title="phpPgAdmin" /></a></div>
 
 <!-- tree -->
 <script type="text/ng-template"  id="tree_item_renderer.html">
@@ -137,7 +137,7 @@ $(document).ready(updateHeight);
 </script>
 
 <script type="text/ng-template" id="/root/servers/n">
-{{serverNum}}
+{{serverNum}} <!-- TODO -->
 </script>
 
 <script type="text/ng-template" id="/root/servers/n/login">
@@ -187,6 +187,7 @@ $(document).ready(updateHeight);
 <p class="message">{{message}}</p>
 <table>
 <tr>
+<th><input type="checkbox" id="db_check_all_none" ng-model="master" ng-click="onmasterclick()"></th>
 <th class="data">Database</th>
 <th class="data">Owner</th>
 <th class="data">Encoding</th>
@@ -197,7 +198,8 @@ $(document).ready(updateHeight);
 <th class="data">Actions</th>
 <th class="data">Comment</th>
 </tr>
-<tr ng-repeat="database in databases">
+<tr ng-class-odd="'data1'" ng-class-even="'data2'" ng-repeat="database in databases">
+<td><input ng-click="onitemclick()" class="db_check_item" type="checkbox" ng-model="database.isSelected"></td>
 <td>{{database.name}}</td>
 <td>{{database.owner}}</td>
 <td>{{database.encoding}}</td>
@@ -205,9 +207,103 @@ $(document).ready(updateHeight);
 <td>{{database.charactertype}}</td>
 <td>{{database.tablespace}}</td>
 <td>{{database.size}}</td>
-<td><button ng-repeat="action for database.actions">{{action.desc}}</button></td>
+<td><button ng-repeat="action in database.actions" ng-click="action.fun()">{{action.desc}}</button></td>
 <td>{{database.comment}}</td>
 </tr>
+<tr>
+<td colspan="10"><select ng-model="selectedAction" ng-options="action.desc for action in actionsForSelected"></select></td>
+</tr>
+</table>
+<ul class="navlink">
+<li>
+<a href="/jsppa/root/servers/{{serverNum}}/databases/create">Create database</a>
+</li>
+</ul>
+</div>
+</script>
+
+<script type="text/ng-template" id="/root/servers/n/databases/create">
+<!-- TODO -->
+<div ng-controller="DBCreateCtrl">
+<h2>Create database<a class="help" href="help.php?help=pg.database.create&amp;server=localhost%3A5432%3Aallow" title="Help" target="phppgadminhelp">?</a></h2>
+<p class="message">{{message}}</p>
+<table>
+	<tr>
+		<th class="data left required">Name</th>
+		<td class="data1"><input name="formName" size="32" maxlength="63" value="" /></td>
+	</tr>
+	<tr>
+		<th class="data left required">Template</th>
+		<td class="data1">
+			<select ng-model="templateDB" ng-options="database.name for database in databases" name="formTemplate">
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<th class="data left required">Encoding</th>
+		<td class="data1">
+			<select name="formEncoding">
+				<option value=""></option>
+				<option value="BIG5">BIG5</option>
+				<option value="EUC_CN">EUC_CN</option>
+				<option value="EUC_JP">EUC_JP</option>
+				<option value="EUC_KR">EUC_KR</option>
+				<option value="EUC_TW">EUC_TW</option>
+				<option value="GB18030">GB18030</option>
+				<option value="GBK">GBK</option>
+				<option value="ISO_8859_5">ISO_8859_5</option>
+				<option value="ISO_8859_6">ISO_8859_6</option>
+				<option value="ISO_8859_7">ISO_8859_7</option>
+				<option value="ISO_8859_8">ISO_8859_8</option>
+				<option value="JOHAB">JOHAB</option>
+				<option value="KOI8">KOI8</option>
+				<option value="LATIN1">LATIN1</option>
+				<option value="LATIN2">LATIN2</option>
+				<option value="LATIN3">LATIN3</option>
+				<option value="LATIN4">LATIN4</option>
+				<option value="LATIN5">LATIN5</option>
+				<option value="LATIN6">LATIN6</option>
+				<option value="LATIN7">LATIN7</option>
+				<option value="LATIN8">LATIN8</option>
+				<option value="LATIN9">LATIN9</option>
+				<option value="LATIN10">LATIN10</option>
+				<option value="SJIS">SJIS</option>
+				<option value="SQL_ASCII">SQL_ASCII</option>
+				<option value="UHC">UHC</option>
+				<option value="UTF8">UTF8</option>
+				<option value="WIN866">WIN866</option>
+				<option value="WIN874">WIN874</option>
+				<option value="WIN1250">WIN1250</option>
+				<option value="WIN1251">WIN1251</option>
+				<option value="WIN1252">WIN1252</option>
+				<option value="WIN1256">WIN1256</option>
+				<option value="WIN1258">WIN1258</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<th class="data left">Collation</th>
+		<td class="data1">
+			<input name="formCollate" value="" />
+		</td>
+	</tr>
+	<tr>
+		<th class="data left">Character Type</th>
+		<td class="data1">
+			<input name="formCType" value="" />
+		</td>
+	</tr>
+	<tr>
+		<th class="data left">Tablespace</th>
+		<td class="data1">
+			<select name="formSpc" ng-model="selectedTablespace" ng-options="tablespace.name for tablespace in tablespaces">
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<th class="data left">Comment</th>
+		<td><textarea name="formComment" rows="3" cols="32"></textarea></td>
+	</tr>
 </table>
 </div>
 </script>
