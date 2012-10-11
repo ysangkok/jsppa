@@ -1,0 +1,156 @@
+<html>
+<head>
+				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+				<title>Schema tests</title>
+				</head>
+				<body>
+				<table cellpadding="1" cellspacing="1" border="1">
+				<thead>
+				<tr><td rowspan="1" colspan="3">Create and Alter schema.</td></tr>
+				</thead><tbody><tr>
+<th colspan="3">Login as janus</th>
+</tr>
+<tr>
+<td>open</td>
+<td>http://localhost:8800/ppa/intro.php</td>
+<td></td>
+</tr>
+<tr>
+<td>select</td>
+<td>name=language</td>
+<td>English</td>
+</tr>
+<tr>
+<td>open</td>
+<td>http://localhost:8800/ppa/login.php?server=localhost:5432:allow&subject=server</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>//input[@name='loginUsername']</td>
+<td>admin_user</td>
+</tr>
+<tr>
+<td>type</td>
+<td>//input[@id='loginPassword']</td>
+<td>super</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>name=loginSubmit</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//div[@class='topbar']/descendant::span[@class='username']</td>
+<td>admin_user</td>
+</tr>
+<tr>
+<th colspan="3">1. create test schema</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Databases</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=ppatests_db</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Schemas</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Create schema</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=formName</td>
+<td>test_schema_toalter</td>
+</tr>
+<tr>
+<td>select</td>
+<td>name=formAuth</td>
+<td>janus</td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=formComment</td>
+<td>test schema comment to alter</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>name=create</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Schema created.</td>
+</tr>
+<tr>
+<th colspan="3">2. alter schema's name, owner and comment</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Schemas</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//tr/td/a[text()='test_schema_toalter']/../../td/a[text()='Alter']</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=name</td>
+<td>test_schema</td>
+</tr>
+<tr>
+<td>select</td>
+<td>name=owner</td>
+<td>admin_user</td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=comment</td>
+<td>test schema</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>name=alter</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Schema altered.</td>
+</tr>
+<tr>
+<th colspan="3">Logout</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//div[@class='trail']/descendant::tr/td[1]/a/span[@class='label' and text()='phpPgAdmin']</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Servers</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//tr/td/a[text()='PostgreSQL']/../../td/a[text()='Logout']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Logged out of PostgreSQL</td>
+</tr>

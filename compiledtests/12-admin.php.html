@@ -1,0 +1,843 @@
+<html>
+<head>
+				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+				<title>Admin tests</title>
+				</head>
+				<body>
+				<table cellpadding="1" cellspacing="1" border="1">
+				<thead>
+				<tr><td rowspan="1" colspan="3">Test the admin interfaces.</td></tr>
+				</thead><tbody><tr>
+<th colspan="3">Login as janus</th>
+</tr>
+<tr>
+<td>open</td>
+<td>http://localhost:8800/ppa/intro.php</td>
+<td></td>
+</tr>
+<tr>
+<td>select</td>
+<td>name=language</td>
+<td>English</td>
+</tr>
+<tr>
+<td>open</td>
+<td>http://localhost:8800/ppa/login.php?server=localhost:5432:allow&subject=server</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>//input[@name='loginUsername']</td>
+<td>admin_user</td>
+</tr>
+<tr>
+<td>type</td>
+<td>//input[@id='loginPassword']</td>
+<td>super</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>name=loginSubmit</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//div[@class='topbar']/descendant::span[@class='username']</td>
+<td>admin_user</td>
+</tr>
+<tr>
+<th colspan="3">1. Check Variables</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Databases</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=ppatests_db</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Variables</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Name' and @class='data']/../th[1]</td>
+<td>Name</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Name' and @class='data']/../th[2]</td>
+<td>Setting</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr[contains(@class,'data')]/td[text()='client_encoding']/../td[1]</td>
+<td>client_encoding</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr[contains(@class,'data')]/td[text()='client_encoding']/../td[2]</td>
+<td>UTF*8</td>
+</tr>
+<tr>
+<th colspan="3">2. Check Processes</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Processes</td>
+<td></td>
+</tr>
+<tr>
+<td>click</td>
+<td>//a[@id='control']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//a[@id='control']</td>
+<td>Start</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h3[1]</td>
+<td>Prepared transactions</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h3[2]</td>
+<td>Processes</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Username' and @class='data']/../th[1]</td>
+<td>Username</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Username' and @class='data']/../th[2]</td>
+<td>Process</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Username' and @class='data']/../th[3]</td>
+<td>SQL</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Username' and @class='data']/../th[4]</td>
+<td>Start Time</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Username' and @class='data']/../th[5]</td>
+<td>Actions</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr[contains(@class,'data')]/td[text()='admin_user']/../td[1]</td>
+<td>admin_user</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr[contains(@class,'data')]/td[3]/pre[@class='data']</td>
+<td>SELECT datname, usename, *FROM pg_catalog.pg_stat_activity*WHERE datname='ppatests_db'*ORDER BY usename,*pid</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr[contains(@class,'data')]/td[text()='admin_user']/../td[5]</td>
+<td>Cancel</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr[contains(@class,'data')]/td[text()='admin_user']/../td[6]</td>
+<td>Kill</td>
+</tr>
+<tr>
+<th colspan="3">3. Check Locks</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Locks</td>
+<td></td>
+</tr>
+<tr>
+<td>click</td>
+<td>//a[@id='control']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//a[@id='control']</td>
+<td>Start</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Schema' and @class='data']/../th[1]</td>
+<td>Schema</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Schema' and @class='data']/../th[2]</td>
+<td>Table name</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Schema' and @class='data']/../th[3]</td>
+<td>Virtual Transaction ID</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Schema' and @class='data']/../th[4]</td>
+<td>Transaction ID</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Schema' and @class='data']/../th[5]</td>
+<td>Process ID</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Schema' and @class='data']/../th[6]</td>
+<td>Lock mode</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Schema' and @class='data']/../th[7]</td>
+<td>Is lock held?</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/td[1 and text()='pg_catalog']/../td[2 and text()='pg_class']/../td[1]</td>
+<td>pg_catalog</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/td[1 and text()='pg_catalog']/../td[2 and text()='pg_class']/../td[2]</td>
+<td>pg_class</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/td[1 and text()='pg_catalog']/../td[2 and text()='pg_class']/../td[6]</td>
+<td>AccessShareLock</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/td[1 and text()='pg_catalog']/../td[2 and text()='pg_class']/../td[7]</td>
+<td>Yes</td>
+</tr>
+<tr>
+<th colspan="3">4. Database Admin Options</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Admin</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Vacuum' and @class='data']/../th[1]</td>
+<td>Vacuum*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Vacuum' and @class='data']/../th[2]</td>
+<td>Analyze*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Vacuum' and @class='data']/../th[3]</td>
+<td>Cluster*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Vacuum' and @class='data']/../th[4]</td>
+<td>Reindex*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h2</td>
+<td>Autovacuum setup per table</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Vacuum']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h2</td>
+<td>Vacuum*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//p</td>
+<td>Are you sure you want to vacuum all tables in database "ppatests_db"?</td>
+</tr>
+<tr>
+<td>check</td>
+<td>//input[@name='vacuum_full']</td>
+<td></td>
+</tr>
+<tr>
+<td>check</td>
+<td>//input[@name='vacuum_analyze']</td>
+<td></td>
+</tr>
+<tr>
+<td>check</td>
+<td>//input[@name='vacuum_freeze']</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Vacuum']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Vacuum complete.</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Analyze']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h2</td>
+<td>Analyze*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//p</td>
+<td>Are you sure you want to analyze all tables in database "ppatests_db"?</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Analyze']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Analyze complete.</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Cluster']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h2</td>
+<td>Cluster*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//p</td>
+<td>Are you sure you want to cluster all tables in database "ppatests_db"?</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Cluster']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Cluster complete.</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Reindex']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h2</td>
+<td>Reindex*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//p</td>
+<td>Are you sure you want to reindex all tables in database "ppatests_db"?</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Reindex']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Reindex complete.</td>
+</tr>
+<tr>
+<th colspan="3">5. Table Admin Options</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Schemas</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=public</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Tables</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=student</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Admin</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Vacuum' and @class='data']/../th[1]</td>
+<td>Vacuum*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Vacuum' and @class='data']/../th[2]</td>
+<td>Analyze*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Vacuum' and @class='data']/../th[3]</td>
+<td>Cluster*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Vacuum' and @class='data']/../th[4]</td>
+<td>Reindex*</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Vacuum']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h2</td>
+<td>Vacuum*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//p</td>
+<td>Are you sure you want to vacuum "student"?</td>
+</tr>
+<tr>
+<td>check</td>
+<td>//input[@name='vacuum_full']</td>
+<td></td>
+</tr>
+<tr>
+<td>check</td>
+<td>//input[@name='vacuum_analyze']</td>
+<td></td>
+</tr>
+<tr>
+<td>check</td>
+<td>//input[@name='vacuum_freeze']</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Vacuum']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Vacuum complete.</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Analyze']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h2</td>
+<td>Analyze*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//p</td>
+<td>Are you sure you want to analyze "student"?</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Analyze']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Analyze complete.</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Reindex']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h2</td>
+<td>Reindex*</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//p</td>
+<td>Are you sure you want to reindex "student"?</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Reindex']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Reindex complete.</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h2</td>
+<td>Autovacuum setup per table</td>
+</tr>
+<tr>
+<th colspan="3">6. Autovacuum setup</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Add autovacuum setup for a table</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h2</td>
+<td>Edit autovacuum setup for table student</td>
+</tr>
+<tr>
+<td>check</td>
+<td>//tr/td/input[@name='autovacuum_enabled' and @value='off']</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>//tr/td/input[@name='autovacuum_vacuum_threshold']</td>
+<td>55</td>
+</tr>
+<tr>
+<td>type</td>
+<td>//tr/td/input[@name='autovacuum_vacuum_scale_factor']</td>
+<td>0.25</td>
+</tr>
+<tr>
+<td>type</td>
+<td>//tr/td/input[@name='autovacuum_analyze_threshold']</td>
+<td>55</td>
+</tr>
+<tr>
+<td>type</td>
+<td>//tr/td/input[@name='autovacuum_analyze_scale_factor']</td>
+<td>0.15</td>
+</tr>
+<tr>
+<td>type</td>
+<td>//tr/td/input[@name='autovacuum_vacuum_cost_delay']</td>
+<td>10</td>
+</tr>
+<tr>
+<td>type</td>
+<td>//tr/td/input[@name='autovacuum_vacuum_cost_limit']</td>
+<td>200</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Save']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../th[1]</td>
+<td>Enabled</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../th[2]</td>
+<td>Vacuum Base Threshold</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../th[3]</td>
+<td>Vacuum Scale Factor</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../th[4]</td>
+<td>Analyze Base Threshold</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../th[5]</td>
+<td>Analyze Scale Factor</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../th[6]</td>
+<td>Vacuum Cost Delay</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../th[7]</td>
+<td>Vacuum Cost Limit</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../th[8]</td>
+<td>Actions</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[1]</td>
+<td>off</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[2]</td>
+<td>55</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[3]</td>
+<td>0.25</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[4]</td>
+<td>55</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[5]</td>
+<td>0.15</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[6]</td>
+<td>10ms</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[7]</td>
+<td>200</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[8]</td>
+<td>Edit</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[9]</td>
+<td>Delete</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//tr/td/a[text()='Edit']</td>
+<td></td>
+</tr>
+<tr>
+<td>check</td>
+<td>//tr/td/input[@name='autovacuum_enabled' and @value='on']</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Save']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[1]</td>
+<td>on</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//tr/td[@class='crumb']/a[@title='Database']</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Admin</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//h2</td>
+<td>Autovacuum setup per table</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[3 and text()='Enabled' and @class='data']/../th[1]</td>
+<td>Schema</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[3 and text()='Enabled' and @class='data']/../th[2]</td>
+<td>Table</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[3 and text()='Enabled' and @class='data']/../th[3]</td>
+<td>Enabled</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[3 and text()='Enabled' and @class='data']/../th[4]</td>
+<td>Vacuum Base Threshold</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[3 and text()='Enabled' and @class='data']/../th[5]</td>
+<td>Vacuum Scale Factor</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[3 and text()='Enabled' and @class='data']/../th[6]</td>
+<td>Analyze Base Threshold</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[3 and text()='Enabled' and @class='data']/../th[7]</td>
+<td>Analyze Scale Factor</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[3 and text()='Enabled' and @class='data']/../th[8]</td>
+<td>Vacuum Cost Delay</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[3 and text()='Enabled' and @class='data']/../th[9]</td>
+<td>Vacuum Cost Limit</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[3 and text()='Enabled' and @class='data']/../th[10]</td>
+<td>Actions</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[1]</td>
+<td>public</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[2]</td>
+<td>student</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[3]</td>
+<td>on</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[4]</td>
+<td>55</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[5]</td>
+<td>0.25</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[6]</td>
+<td>55</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[7]</td>
+<td>0.15</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[8]</td>
+<td>10ms</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[9]</td>
+<td>200</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[10]</td>
+<td>Edit</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[11]</td>
+<td>Delete</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//tr/th[1 and text()='Enabled' and @class='data']/../../tr[2]/td[11]/a</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>name=//p</td>
+<td>Delete autovacuum setup for table *student* ?</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Yes']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[text()='No autovacuum configuration found.']</td>
+<td>No autovacuum configuration found.</td>
+</tr>
+<tr>
+<th colspan="3">Logout</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//div[@class='trail']/descendant::tr/td[1]/a/span[@class='label' and text()='phpPgAdmin']</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Servers</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//tr/td/a[text()='PostgreSQL']/../../td/a[text()='Logout']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Logged out of PostgreSQL</td>
+</tr>

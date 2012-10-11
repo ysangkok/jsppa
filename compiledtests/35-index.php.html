@@ -1,0 +1,189 @@
+<html>
+<head>
+				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+				<title>Index tests</title>
+				</head>
+				<body>
+				<table cellpadding="1" cellspacing="1" border="1">
+				<thead>
+				<tr><td rowspan="1" colspan="3">Create/Drop an unique Index</td></tr>
+				</thead><tbody><tr>
+<th colspan="3">Login as janus</th>
+</tr>
+<tr>
+<td>open</td>
+<td>http://localhost:8800/ppa/intro.php</td>
+<td></td>
+</tr>
+<tr>
+<td>select</td>
+<td>name=language</td>
+<td>English</td>
+</tr>
+<tr>
+<td>open</td>
+<td>http://localhost:8800/ppa/login.php?server=localhost:5432:allow&subject=server</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>//input[@name='loginUsername']</td>
+<td>admin_user</td>
+</tr>
+<tr>
+<td>type</td>
+<td>//input[@id='loginPassword']</td>
+<td>super</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>name=loginSubmit</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//div[@class='topbar']/descendant::span[@class='username']</td>
+<td>admin_user</td>
+</tr>
+<tr>
+<th colspan="3">1. Create the unique index</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Databases</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=ppatests_db</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Schemas</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=public</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Tables</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=student</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Indexes</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Create index</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=formIndexName</td>
+<td>name_unique</td>
+</tr>
+<tr>
+<td>addSelection</td>
+<td>name=TableColumnList</td>
+<td>label=name</td>
+</tr>
+<tr>
+<td>click</td>
+<td>name=add</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Create']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Index created.</td>
+</tr>
+<tr>
+<th colspan="3">2. Cluster on the index</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Indexes</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//tr/td[text()='name_unique']/../td/a[text()='Cluster']</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>name=cluster</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Cluster complete. Analyze complete.</td>
+</tr>
+<tr>
+<th colspan="3">3. Drop the index</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Indexes</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//tr/td[text()='name_unique']/../td/a[text()='Drop']</td>
+<td></td>
+</tr>
+<tr>
+<td>click</td>
+<td>name=cascade</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>name=drop</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Index dropped.</td>
+</tr>
+<tr>
+<th colspan="3">Logout</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//div[@class='trail']/descendant::tr/td[1]/a/span[@class='label' and text()='phpPgAdmin']</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Servers</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//tr/td/a[text()='PostgreSQL']/../../td/a[text()='Logout']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Logged out of PostgreSQL</td>
+</tr>

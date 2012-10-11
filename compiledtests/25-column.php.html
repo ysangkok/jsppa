@@ -1,0 +1,332 @@
+<html>
+<head>
+				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+				<title>Column tests</title>
+				</head>
+				<body>
+				<table cellpadding="1" cellspacing="1" border="1">
+				<thead>
+				<tr><td rowspan="1" colspan="3">Add/Alter/Drop a column</td></tr>
+				</thead><tbody><tr>
+<th colspan="3">Login as janus</th>
+</tr>
+<tr>
+<td>open</td>
+<td>http://localhost:8800/ppa/intro.php</td>
+<td></td>
+</tr>
+<tr>
+<td>select</td>
+<td>name=language</td>
+<td>English</td>
+</tr>
+<tr>
+<td>open</td>
+<td>http://localhost:8800/ppa/login.php?server=localhost:5432:allow&subject=server</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>//input[@name='loginUsername']</td>
+<td>admin_user</td>
+</tr>
+<tr>
+<td>type</td>
+<td>//input[@id='loginPassword']</td>
+<td>super</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>name=loginSubmit</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//div[@class='topbar']/descendant::span[@class='username']</td>
+<td>admin_user</td>
+</tr>
+<tr>
+<th colspan="3">1. add column</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Databases</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=ppatests_db</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Schemas</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=public</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Tables</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=student</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Columns</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Add column</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=field</td>
+<td>new_col</td>
+</tr>
+<tr>
+<td>select</td>
+<td>name=type</td>
+<td>label=integer</td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=default</td>
+<td>0</td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=comment</td>
+<td>test col to drop</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Add']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Column added.</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/td/a[text()='new_col']</td>
+<td>new_col</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/td/a[text()='new_col']/../../td[2]</td>
+<td>integer</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/td/a[text()='new_col']/../../td[3]</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/td/a[text()='new_col']/../../td[4]</td>
+<td>0</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/td/a[text()='new_col']/../../td[10]</td>
+<td>test col to drop</td>
+</tr>
+<tr>
+<th colspan="3">2. alter column</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Columns</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=new_col</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Alter</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=field</td>
+<td>altered_col</td>
+</tr>
+<tr>
+<td>select</td>
+<td>name=type</td>
+<td>label=character</td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=length</td>
+<td>1</td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=default</td>
+<td>'-'</td>
+</tr>
+<tr>
+<td>check</td>
+<td>name=notnull</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=comment</td>
+<td>altered col to drop</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Alter']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Column altered.</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='comment']</td>
+<td>altered col to drop</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/th[text()='Column']/../../tr[2]/td[1]</td>
+<td>altered_col</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/td[1 and text()='altered_col']/../td[2]</td>
+<td>character(1)</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/td[1 and text()='altered_col']/../td[3]</td>
+<td>NOT NULL</td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//tr/td[1 and text()='altered_col']/../td[4]</td>
+<td>'-'*</td>
+</tr>
+<tr>
+<th colspan="3">3. alter column fail</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//div[@class='trail']/descendant::a[@title='Table']/span[@class='label' and text()='student']</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=name</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Alter</td>
+<td></td>
+</tr>
+<tr>
+<td>type</td>
+<td>name=default</td>
+<td>Bad default value</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//input[@value='Alter']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Column alteration failed.</td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>name=cancel</td>
+<td></td>
+</tr>
+<tr>
+<th colspan="3">4. drop column</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//div[@class='trail']/descendant::a[@title='Table']/span[@class='label' and text()='student']</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=altered_col</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Drop</td>
+<td></td>
+</tr>
+<tr>
+<td>click</td>
+<td>name=cascade</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>name=drop</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Column dropped.</td>
+</tr>
+<tr>
+<td>assertErrorOnNext</td>
+<td>Element //tr/td/a[text()='altered_col'] not found</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//tr/td/a[text()='altered_col']</td>
+<td></td>
+</tr>
+<tr>
+<th colspan="3">Logout</th>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//div[@class='trail']/descendant::tr/td[1]/a/span[@class='label' and text()='phpPgAdmin']</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>link=Servers</td>
+<td></td>
+</tr>
+<tr>
+<td>clickAndWait</td>
+<td>//tr/td/a[text()='PostgreSQL']/../../td/a[text()='Logout']</td>
+<td></td>
+</tr>
+<tr>
+<td>assertText</td>
+<td>//p[@class='message']</td>
+<td>Logged out of PostgreSQL</td>
+</tr>
