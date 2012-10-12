@@ -1,58 +1,84 @@
 from __future__ import print_function
-
+import shutil
 import ast
-
-import urllib.request
-langs = str(urllib.request.urlopen("http://localhost:8800/jsppa/languages.php").read(),'utf-8')
-import json
-texts = json.loads(langs)["texts"]["english"]
-
 import sys
+import json
+import urllib.request
+
+f = sys.argv[1]
+orgf = open(f).readlines()
+print(orgf[0])
+
+langs = str(urllib.request.urlopen("http://localhost:8800/jsppa/languages.php").read(),'utf-8')
+texts = json.loads(langs)["texts"]["english"]
+del texts["strasterisk"]
+del texts["strhelpicon"]
+del texts["strpercent"]
+
 sys.path.append( "scanf-1.2" )
 
 from scanf import sscanf, IncompleteCaptureError
 
 def process(strs, oldlines):
+	modifiedlines = {}
+	skipped = 0
 	for pair in strs:
 		try:
 			(sourcestr, lineno, colno) = pair
 			lineno -= 1
-			def literalin(i18nstr): return i18nstr[1] in sourcestr
+			#oldlines[lineno] = oldlines[lineno].replace("\\\"" , '"')
+			if sourcestr not in oldlines[lineno]:
+			  continue
+			if lineno in modifiedlines:
+			  colno += modifiedlines[lineno]
+			def literalin(i18nstr):
+			  return i18nstr[1] in sourcestr
 			def scanfmatch(x):
 				if "%s" not in x[1]: return False
+				#if x[1].startswith("Are you sure you want to vacuum all tables in database"): print(x)
 				try:
 					match = sscanf(sourcestr,x[1])
-					#print("template:" + x[1], "source:" + sourcestr)
-					#print("FOUND MATCH", match)
 					return True
 				except IncompleteCaptureError:
 					pass
 				return False
 
 			res = list(filter(lambda x: literalin(x) or scanfmatch(x),texts.items()))
-			if len(res) > 0:
-				m = max(res, key=lambda i18nstr: len(i18nstr[0]))
-				if m[0] in ["strhelpicon"]: continue # applang maybe?
-				#print("\"{0}\" contains {1} (\"{2}\")".format(sourcestr, m[0], m[1]))
-				#print(lineno, "\t", oldlines[lineno])
+			#if sourcestr.startswith("Are you sure you want to vacuum all tables in database"): print(sourcestr, oldlines[lineno],res)
+			notReplaced = True
+			while notReplaced and len(res) > 0:
+				m = max(res, key=lambda i18nstr: len(i18nstr[1]))
 				newoldline = ""
 				newoldline += oldlines[lineno][0:colno+1]
 				temp = oldlines[lineno][colno+1:colno+len(sourcestr)+1]
-				#print("searching in", temp)
-				strchar = oldlines[lineno][colno:colno+1]
 				for febn in ["find_element_by_name(","find_element_by_xpath(","find_element_by_id("]:
 				  before = oldlines[lineno][colno-len(febn):colno]
 				  if before == febn:
-				    if m[1] not in ["Logout","Create","Alter"] and "xpath" not in febn:
+				    if r"^" + m[1] + "[\s\S]*$" == sourcestr:
+				      pass
+				    elif "'" + m[1] + "'" in sourcestr and "xpath" in febn:
+				      pass
+				    else:
+				      print("dropping str " + sourcestr)
 				      raise StopIteration()
+				strchar = '"'
 				if '%s' in m[1]:
-				  newoldline += strchar + " + (t['" + m[0] + "'] % " + repr(sscanf(temp,m[1])) + ") + " + strchar
+				  try:
+				    newoldline += strchar + " + (t['" + m[0] + "'] % " + repr(sscanf(temp,m[1])) + ") + " + strchar
+				  except IncompleteCaptureError as e:
+				    res.remove(m)
+				    continue
+				    #raise e
 				else:
-				  newoldline += temp.replace(m[1] , strchar + " + t['" + m[0] + "'] + " + strchar)
+				  replaced = temp.replace(m[1] , strchar + " + t['" + m[0] + "'] + " + strchar)
+				  newoldline += replaced
 				newoldline += oldlines[lineno][colno+len(sourcestr)+1:]
+				modifiedlines[lineno] =   len(newoldline)-len(oldlines[lineno])
 				oldlines[lineno] = newoldline
+				notReplaced = False
 		except StopIteration:
 			pass
+	print("skipped:", skipped)
 	return oldlines
 
 class allnames(ast.NodeVisitor):
@@ -81,7 +107,17 @@ t = json.loads(langs)["texts"]["english"]""".split("\n")):
    def visit_Str(self, node):
      self.names.add((node.s, node.lineno, node.col_offset))
 
-for f in map(lambda x: x.zfill(2), map(str,range(1,13))):
+#for f in map(lambda x: x.zfill(2), map(str,range(1,13))):
 #for f in map(lambda x: x.zfill(2), map(str,range(1,2))):
-  node = ast.parse(open(f).read())
-  allnames(open(f).readlines(),open(f + ".new",'w')).visit(node)
+node = ast.parse(open(f).read())
+with open(f) as org:
+  with open(f + ".new",'w') as new1:
+    allnames(org.readlines(),new1).visit(node)
+#for i in range(1,2):
+#  with open(f+".new") as new1:
+#    with open(f + ".new.new",'w') as new2:
+#      allnames(new1.readlines(),new2).visit(node)
+#  shutil.move(f+".new.new", f+".new")
+
+import os
+os.system("for i in `seq -w 1 12`; do sed 's/english/japanese/gi' < $i.new > $i.new.jap; done")
