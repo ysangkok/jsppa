@@ -39,7 +39,7 @@ class PostgreSQLIndexTests(unittest.TestCase):
         driver.find_element_by_link_text("Indexes").click()
         driver.find_element_by_xpath("//tr/td[text()='name_unique']/../td/a[text()='Cluster']").click()
         driver.find_element_by_name("cluster").click()
-        self.assertEqual("Cluster complete. Analyze complete.", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual(t['strclusteredgood'] + " " + t['stranalyzegood'], driver.find_element_by_xpath("//p[@class='message']").text)
         driver.find_element_by_link_text("Indexes").click()
         driver.find_element_by_xpath("//tr/td[text()='name_unique']/../td/a[text()='Drop']").click()
         driver.find_element_by_name("cascade").click()
