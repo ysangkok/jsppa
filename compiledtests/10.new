@@ -1,0 +1,127 @@
+# -*- coding: utf-8 -*-
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
+
+import sys
+if sys.version_info[0] < 3:
+  from urllib2 import urlopen
+  langs = urlopen("http://localhost:8800/jsppa/languages.php").read()
+else:
+  from urllib.request import urlopen
+  langs = str(urlopen("http://localhost:8800/jsppa/languages.php").read(),'utf-8')
+import json
+ke = "__LANGUAGE__";
+if ke == "__" + "LANGUAGE__": ke = "english"
+
+orgeng = json.loads(langs)["texts"]["english"]
+orgcho = json.loads(langs)["texts"][ke]
+for (k,v) in orgeng.items():
+  if not orgcho.has_key(k):
+    orgcho[k] = v
+
+t = orgcho
+
+
+import unittest, time, re
+
+class PostgreSQLViewTests(unittest.TestCase):
+    def setUp(self):
+        self.driver = webdriver.Firefox()
+        self.driver.implicitly_wait(5)
+        self.base_url = "http://localhost:8800/"
+        self.verificationErrors = []
+    
+    def test_postgre_s_q_l_view_tests(self):
+        driver = self.driver
+        driver.get("http://localhost:8800/ppa/intro.php")
+        Select(driver.find_element_by_name("language")).select_by_visible_text("" + t['applang'] + "")
+        driver.get("http://localhost:8800/ppa/login.php?server=localhost:5432:allow&subject=server")
+        driver.find_element_by_xpath("//input[@name='loginUsername']").clear()
+        driver.find_element_by_xpath("//input[@name='loginUsername']").send_keys("admin_user")
+        driver.find_element_by_xpath("//input[@id='loginPassword']").clear()
+        driver.find_element_by_xpath("//input[@id='loginPassword']").send_keys("super")
+        driver.find_element_by_name("loginSubmit").click()
+        self.assertEqual("admin_user", driver.find_element_by_xpath("//div[@class='topbar']/descendant::span[@class='username']").text)
+        driver.find_element_by_link_text("" + t['strdatabases'] + "").click()
+        driver.find_element_by_link_text("ppatests_db").click()
+        driver.find_element_by_link_text("" + t['strschemas'] + "").click()
+        driver.find_element_by_link_text("public").click()
+        driver.find_element_by_link_text("" + t['strviews'] + "").click()
+        driver.find_element_by_link_text("" + t['strcreateview'] + "").click()
+        driver.find_element_by_name("formView").clear()
+        driver.find_element_by_name("formView").send_keys("student_promo")
+        driver.find_element_by_name("formDefinition").clear()
+        driver.find_element_by_name("formDefinition").send_keys("SELECT s.id, name, birthday, resume, spe, year\n			FROM student AS s\n			JOIN test_schema.promo AS p ON (s.id_promo=p.id)")
+        driver.find_element_by_name("formComment").clear()
+        driver.find_element_by_name("formComment").send_keys("students and their promotion")
+        driver.find_element_by_xpath("//input[@value='" + t['strcreate'] + "']").click()
+        self.assertEqual("" + t['strviewcreated'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("student_promo", driver.find_element_by_xpath("//tr/td[2]/a[text()='student_promo']/../../td[2]").text)
+        self.assertEqual("admin_user", driver.find_element_by_xpath("//tr/td[2]/a[text()='student_promo']/../../td[3]").text)
+        self.assertEqual("students and their promotion", driver.find_element_by_xpath("//tr/td[2]/a[text()='student_promo']/../../td[8]").text)
+        self.assertEqual("public", driver.find_element_by_xpath("//div[@class='trail']/descendant::a[@title='" + t['strschema'] + "']/span[@class='label']").text)
+        driver.find_element_by_link_text("" + t['strviews'] + "").click()
+        driver.find_element_by_link_text("student_promo").click()
+        driver.find_element_by_xpath("//ul[@class='navlink']/li/a[text()='" + t['stralter'] + "']").click()
+        driver.find_element_by_name("name").clear()
+        driver.find_element_by_name("name").send_keys("student_promo_renamed")
+        driver.find_element_by_name("alter").click()
+        self.assertEqual("" + t['strviewaltered'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("student_promo_renamed", driver.find_element_by_xpath("//div[@class='trail']/descendant::a[@title='" + t['strview'] + "']/span[@class='label']").text)
+        driver.find_element_by_xpath("//ul[@class='navlink']/li/a[text()='" + t['stralter'] + "']").click()
+        driver.find_element_by_name("comment").clear()
+        driver.find_element_by_name("comment").send_keys("students and their promotion (altered)")
+        driver.find_element_by_name("alter").click()
+        self.assertEqual("" + t['strviewaltered'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("students and their promotion (altered)", driver.find_element_by_xpath("//p[@class='comment']").text)
+        driver.find_element_by_xpath("//ul[@class='navlink']/li/a[text()='" + t['stralter'] + "']").click()
+        Select(driver.find_element_by_name("newschema")).select_by_visible_text("test_schema")
+        driver.find_element_by_name("alter").click()
+        self.assertEqual("" + t['strviewaltered'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("test_schema", driver.find_element_by_xpath("//div[@class='trail']/descendant::a[@title='" + t['strschema'] + "']/span[@class='label']").text)
+        driver.find_element_by_xpath("//ul[@class='navlink']/li/a[text()='" + t['stralter'] + "']").click()
+        Select(driver.find_element_by_name("owner")).select_by_visible_text("ppa_tests_user")
+        driver.find_element_by_name("alter").click()
+        self.assertEqual("" + t['strviewaltered'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::a[@title='" + t['strschema'] + "']/span[@class='label' and text()='test_schema']").click()
+        driver.find_element_by_link_text("" + t['strviews'] + "").click()
+        self.assertEqual("ppa_tests_user", driver.find_element_by_xpath("//tr/td[2]/a[text()='student_promo_renamed']/../../td[3]").text)
+        driver.find_element_by_link_text("student_promo_renamed").click()
+        driver.find_element_by_xpath("//ul[@class='navlink']/li/a[text()='" + t['stralter'] + "']").click()
+        Select(driver.find_element_by_name("owner")).select_by_visible_text("admin_user")
+        driver.find_element_by_name("name").clear()
+        driver.find_element_by_name("name").send_keys("student_promo")
+        Select(driver.find_element_by_name("newschema")).select_by_visible_text("public")
+        driver.find_element_by_name("comment").clear()
+        driver.find_element_by_name("comment").send_keys("students and their promotion")
+        driver.find_element_by_name("alter").click()
+        self.assertEqual("" + t['strviewaltered'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("students and their promotion", driver.find_element_by_xpath("//p[@class='comment']").text)
+        self.assertEqual("student_promo", driver.find_element_by_xpath("//div[@class='trail']/descendant::a[@title='" + t['strview'] + "']/span[@class='label']").text)
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::a[@title='" + t['strschema'] + "']/span[@class='label' and text()='public']").click()
+        driver.find_element_by_link_text("" + t['strviews'] + "").click()
+        self.assertEqual("admin_user", driver.find_element_by_xpath("//tr/td[2]/a[text()='student_promo']/../../td[3]").text)
+        driver.find_element_by_xpath("//tr/td/a[text()='student_promo']/../../td/a[text()='" + t['strdrop'] + "']").click()
+        driver.find_element_by_name("drop").click()
+        self.assertEqual("" + t['strviewdropped'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        try: driver.find_element_by_xpath("//tr/td/a[text()='student_promo']").click()
+        except: pass
+        else: self.fail("expected failure")
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::tr/td[1]/a/span[@class='label' and text()='phpPgAdmin']").click()
+        driver.find_element_by_link_text("" + t['strservers'] + "").click()
+        driver.find_element_by_xpath("//tr/td/a[text()='PostgreSQL']/../../td/a[text()='" + t['strlogout'] + "']").click()
+        self.assertEqual("" + (t['strlogoutmsg'] % ('PostgreSQL',)) + "", driver.find_element_by_xpath("//p[@class='message']").text)
+    
+    def is_element_present(self, how, what):
+        try: self.driver.find_element(by=how, value=what)
+        except NoSuchElementException as e: return False
+        return True
+    
+    def tearDown(self):
+        self.driver.quit()
+        self.assertEqual([], self.verificationErrors)
+
+if __name__ == "__main__":
+    unittest.main()

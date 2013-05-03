@@ -1,0 +1,71 @@
+# -*- coding: utf-8 -*-
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
+
+import sys
+if sys.version_info[0] < 3:
+  from urllib2 import urlopen
+  langs = urlopen("http://localhost:8800/jsppa/languages.php").read()
+else:
+  from urllib.request import urlopen
+  langs = str(urlopen("http://localhost:8800/jsppa/languages.php").read(),'utf-8')
+import json
+t = json.loads(langs)["texts"]["english"]
+import unittest, time, re
+
+class PostgreSQLSchemaTests(unittest.TestCase):
+    def setUp(self):
+        self.driver = webdriver.Firefox()
+        self.driver.implicitly_wait(5)
+        self.base_url = "http://localhost:8800/"
+        self.verificationErrors = []
+    
+    def test_postgre_s_q_l_schema_tests(self):
+        driver = self.driver
+        driver.get("http://localhost:8800/ppa/intro.php")
+        Select(driver.find_element_by_name("language")).select_by_visible_text("" + t['applang'] + "")
+        driver.get("http://localhost:8800/ppa/login.php?server=localhost:5432:allow&subject=server")
+        driver.find_element_by_xpath("//input[@name='loginUsername']").clear()
+        driver.find_element_by_xpath("//input[@name='loginUsername']").send_keys("admin_user")
+        driver.find_element_by_xpath("//input[@id='loginPassword']").clear()
+        driver.find_element_by_xpath("//input[@id='loginPassword']").send_keys("super")
+        driver.find_element_by_name("loginSubmit").click()
+        self.assertEqual("admin_user", driver.find_element_by_xpath("//div[@class='topbar']/descendant::span[@class='username']").text)
+        driver.find_element_by_link_text("" + t['strdatabases'] + "").click()
+        driver.find_element_by_link_text("ppatests_db").click()
+        driver.find_element_by_link_text("" + t['strschemas'] + "").click()
+        driver.find_element_by_link_text("" + t['strcreateschema'] + "").click()
+        driver.find_element_by_name("formName").clear()
+        driver.find_element_by_name("formName").send_keys("test_schema_toalter")
+        Select(driver.find_element_by_name("formAuth")).select_by_visible_text("janus")
+        driver.find_element_by_name("formComment").clear()
+        driver.find_element_by_name("formComment").send_keys("test schema comment to alter")
+        driver.find_element_by_name("create").click()
+        self.assertEqual("" + t['strschemacreated'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_link_text("" + t['strschemas'] + "").click()
+        driver.find_element_by_xpath("//tr/td/a[text()='test_schema_toalter']/../../td/a[text()='" + t['stralter'] + "']").click()
+        driver.find_element_by_name("name").clear()
+        driver.find_element_by_name("name").send_keys("test_schema")
+        Select(driver.find_element_by_name("owner")).select_by_visible_text("admin_user")
+        driver.find_element_by_name("comment").clear()
+        driver.find_element_by_name("comment").send_keys("test schema")
+        driver.find_element_by_name("alter").click()
+        self.assertEqual("" + t['strschemaaltered'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::tr/td[1]/a/span[@class='label' and text()='phpPgAdmin']").click()
+        driver.find_element_by_link_text("" + t['strservers'] + "").click()
+        driver.find_element_by_xpath("//tr/td/a[text()='PostgreSQL']/../../td/a[text()='" + t['strlogout'] + "']").click()
+        self.assertEqual("" + (t['strlogoutmsg'] % ('PostgreSQL',)) + "", driver.find_element_by_xpath("//p[@class='message']").text)
+    
+    def is_element_present(self, how, what):
+        try: self.driver.find_element(by=how, value=what)
+        except NoSuchElementException as e: return False
+        return True
+    
+    def tearDown(self):
+        self.driver.quit()
+        self.assertEqual([], self.verificationErrors)
+
+if __name__ == "__main__":
+    unittest.main()

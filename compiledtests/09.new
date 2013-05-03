@@ -1,0 +1,122 @@
+# -*- coding: utf-8 -*-
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
+
+import sys
+if sys.version_info[0] < 3:
+  from urllib2 import urlopen
+  langs = urlopen("http://localhost:8800/jsppa/languages.php").read()
+else:
+  from urllib.request import urlopen
+  langs = str(urlopen("http://localhost:8800/jsppa/languages.php").read(),'utf-8')
+import json
+ke = "__LANGUAGE__";
+if ke == "__" + "LANGUAGE__": ke = "english"
+
+orgeng = json.loads(langs)["texts"]["english"]
+orgcho = json.loads(langs)["texts"][ke]
+for (k,v) in orgeng.items():
+  if not orgcho.has_key(k):
+    orgcho[k] = v
+
+t = orgcho
+
+
+import unittest, time, re
+
+class PostgreSQLColumnTests(unittest.TestCase):
+    def setUp(self):
+        self.driver = webdriver.Firefox()
+        self.driver.implicitly_wait(5)
+        self.base_url = "http://localhost:8800/"
+        self.verificationErrors = []
+    
+    def test_postgre_s_q_l_column_tests(self):
+        driver = self.driver
+        driver.get("http://localhost:8800/ppa/intro.php")
+        Select(driver.find_element_by_name("language")).select_by_visible_text("" + t['applang'] + "")
+        driver.get("http://localhost:8800/ppa/login.php?server=localhost:5432:allow&subject=server")
+        driver.find_element_by_xpath("//input[@name='loginUsername']").clear()
+        driver.find_element_by_xpath("//input[@name='loginUsername']").send_keys("admin_user")
+        driver.find_element_by_xpath("//input[@id='loginPassword']").clear()
+        driver.find_element_by_xpath("//input[@id='loginPassword']").send_keys("super")
+        driver.find_element_by_name("loginSubmit").click()
+        self.assertEqual("admin_user", driver.find_element_by_xpath("//div[@class='topbar']/descendant::span[@class='username']").text)
+        driver.find_element_by_link_text("" + t['strdatabases'] + "").click()
+        driver.find_element_by_link_text("ppatests_db").click()
+        driver.find_element_by_link_text("" + t['strschemas'] + "").click()
+        driver.find_element_by_link_text("public").click()
+        driver.find_element_by_link_text("" + t['strtables'] + "").click()
+        driver.find_element_by_link_text("student").click()
+        driver.find_element_by_link_text("" + t['strcolumns'] + "").click()
+        driver.find_element_by_link_text("" + t['straddcolumn'] + "").click()
+        driver.find_element_by_name("field").clear()
+        driver.find_element_by_name("field").send_keys("new_col")
+        Select(driver.find_element_by_name("type")).select_by_visible_text("integer")
+        driver.find_element_by_name("default").clear()
+        driver.find_element_by_name("default").send_keys("0")
+        driver.find_element_by_name("comment").clear()
+        driver.find_element_by_name("comment").send_keys("test col to drop")
+        driver.find_element_by_xpath("//input[@value='" + t['stradd'] + "']").click()
+        self.assertEqual("" + t['strcolumnadded'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("new_col", driver.find_element_by_xpath("//tr/td/a[text()='new_col']").text)
+        self.assertEqual("integer", driver.find_element_by_xpath("//tr/td/a[text()='new_col']/../../td[2]").text)
+        self.assertEqual("", driver.find_element_by_xpath("//tr/td/a[text()='new_col']/../../td[3]").text)
+        self.assertEqual("0", driver.find_element_by_xpath("//tr/td/a[text()='new_col']/../../td[4]").text)
+        self.assertEqual("test col to drop", driver.find_element_by_xpath("//tr/td/a[text()='new_col']/../../td[10]").text)
+        driver.find_element_by_link_text("" + t['strcolumns'] + "").click()
+        driver.find_element_by_link_text("new_col").click()
+        driver.find_element_by_link_text("" + t['stralter'] + "").click()
+        driver.find_element_by_name("field").clear()
+        driver.find_element_by_name("field").send_keys("altered_col")
+        Select(driver.find_element_by_name("type")).select_by_visible_text("character")
+        driver.find_element_by_name("length").clear()
+        driver.find_element_by_name("length").send_keys("1")
+        driver.find_element_by_name("default").clear()
+        driver.find_element_by_name("default").send_keys("'-'")
+        if not driver.find_element_by_name("notnull").is_selected():
+            driver.find_element_by_name("notnull").click()
+        driver.find_element_by_name("comment").clear()
+        driver.find_element_by_name("comment").send_keys("altered col to drop")
+        driver.find_element_by_xpath("//input[@value='" + t['stralter'] + "']").click()
+        self.assertEqual("" + t['strcolumnaltered'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("altered col to drop", driver.find_element_by_xpath("//p[@class='comment']").text)
+        self.assertEqual("altered_col", driver.find_element_by_xpath("//tr/th[text()='" + t['strcolumn'] + "']/../../tr[2]/td[1]").text)
+        self.assertEqual("character(1)", driver.find_element_by_xpath("//tr/td[1 and text()='altered_col']/../td[2]").text)
+        self.assertEqual("NOT NULL", driver.find_element_by_xpath("//tr/td[1 and text()='altered_col']/../td[3]").text)
+        self.assertRegexpMatches(driver.find_element_by_xpath("//tr/td[1 and text()='altered_col']/../td[4]").text, r"^'-'[\s\S]*$")
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::a[@title='" + t['strtable'] + "']/span[@class='label' and text()='student']").click()
+        driver.find_element_by_link_text("name").click()
+        driver.find_element_by_link_text("" + t['stralter'] + "").click()
+        driver.find_element_by_name("default").clear()
+        driver.find_element_by_name("default").send_keys("Bad default value")
+        driver.find_element_by_xpath("//input[@value='" + t['stralter'] + "']").click()
+        self.assertEqual("" + t['strcolumnalteredbad'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_name("cancel").click()
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::a[@title='" + t['strtable'] + "']/span[@class='label' and text()='student']").click()
+        driver.find_element_by_link_text("altered_col").click()
+        driver.find_element_by_link_text("" + t['strdrop'] + "").click()
+        driver.find_element_by_name("cascade").click()
+        driver.find_element_by_name("drop").click()
+        self.assertEqual("" + t['strcolumndropped'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        try: driver.find_element_by_xpath("//tr/td/a[text()='altered_col']").click()
+        except: pass
+        else: self.fail("expected failure")
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::tr/td[1]/a/span[@class='label' and text()='phpPgAdmin']").click()
+        driver.find_element_by_link_text("" + t['strservers'] + "").click()
+        driver.find_element_by_xpath("//tr/td/a[text()='PostgreSQL']/../../td/a[text()='" + t['strlogout'] + "']").click()
+        self.assertEqual("" + (t['strlogoutmsg'] % ('PostgreSQL',)) + "", driver.find_element_by_xpath("//p[@class='message']").text)
+    
+    def is_element_present(self, how, what):
+        try: self.driver.find_element(by=how, value=what)
+        except NoSuchElementException as e: return False
+        return True
+    
+    def tearDown(self):
+        self.driver.quit()
+        self.assertEqual([], self.verificationErrors)
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,227 @@
+# -*- coding: utf-8 -*-
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
+
+import sys
+if sys.version_info[0] < 3:
+  from urllib2 import urlopen
+  langs = urlopen("http://localhost:8800/jsppa/languages.php").read()
+else:
+  from urllib.request import urlopen
+  langs = str(urlopen("http://localhost:8800/jsppa/languages.php").read(),'utf-8')
+import json
+ke = "japanese";
+if ke == "__" + "LANGUAGE__": ke = "english"
+
+orgeng = json.loads(langs)["texts"]["english"]
+orgcho = json.loads(langs)["texts"][ke]
+for (k,v) in orgeng.items():
+  if not orgcho.has_key(k):
+    orgcho[k] = v
+
+t = orgcho
+
+
+import unittest, time, re
+
+class PostgreSQLAdminTests(unittest.TestCase):
+    def setUp(self):
+        self.driver = webdriver.Firefox()
+        self.driver.implicitly_wait(5)
+        self.base_url = "http://localhost:8800/"
+        self.verificationErrors = []
+    
+    def test_postgre_s_q_l_admin_tests(self):
+        driver = self.driver
+        driver.get("http://localhost:8800/ppa/intro.php")
+        Select(driver.find_element_by_name("language")).select_by_visible_text("" + t['applang'] + "")
+        driver.get("http://localhost:8800/ppa/login.php?server=localhost:5432:allow&subject=server")
+        driver.find_element_by_xpath("//input[@name='loginUsername']").clear()
+        driver.find_element_by_xpath("//input[@name='loginUsername']").send_keys("admin_user")
+        driver.find_element_by_xpath("//input[@id='loginPassword']").clear()
+        driver.find_element_by_xpath("//input[@id='loginPassword']").send_keys("super")
+        driver.find_element_by_name("loginSubmit").click()
+        self.assertEqual("admin_user", driver.find_element_by_xpath("//div[@class='topbar']/descendant::span[@class='username']").text)
+        driver.find_element_by_link_text("" + t['strdatabases'] + "").click()
+        driver.find_element_by_link_text("ppatests_db").click()
+        driver.find_element_by_link_text("" + t['strvariables'] + "").click()
+        self.assertEqual("" + t['strname'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strname'] + "' and @class='data']/../th[1]").text)
+        self.assertEqual("" + t['strsetting'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strname'] + "' and @class='data']/../th[2]").text)
+        self.assertEqual("client_encoding", driver.find_element_by_xpath("//tr[contains(@class,'data')]/td[text()='client_encoding']/../td[1]").text)
+        self.assertRegexpMatches(driver.find_element_by_xpath("//tr[contains(@class,'data')]/td[text()='client_encoding']/../td[2]").text, r"^UTF[\s\S]*8$")
+        driver.find_element_by_link_text("" + t['strprocesses'] + "").click()
+        driver.find_element_by_xpath("//a[@id='control']").click()
+        self.assertEqual("" + t['strstart'] + "", driver.find_element_by_xpath("//a[@id='control']").text.strip())
+        self.assertEqual("" + t['strpreparedxacts'] + "", driver.find_element_by_xpath("//h3[1]").text.strip())
+        self.assertEqual("" + t['strprocesses'] + "", driver.find_element_by_xpath("//h3[2]").text.strip())
+        self.assertEqual("" + t['strusername'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strusername'] + "' and @class='data']/../th[1]").text.strip())
+        self.assertEqual("" + t['strprocess'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strusername'] + "' and @class='data']/../th[2]").text.strip())
+        self.assertEqual("" + t['strsql'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strusername'] + "' and @class='data']/../th[3]").text.strip())
+        self.assertEqual("" + t['strstarttime'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strusername'] + "' and @class='data']/../th[4]").text.strip())
+        self.assertEqual("" + t['stractions'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strusername'] + "' and @class='data']/../th[5]").text.strip())
+        self.assertEqual("admin_user", driver.find_element_by_xpath("//tr[contains(@class,'data')]/td[text()='admin_user']/../td[1]").text.strip())
+        self.assertRegexpMatches(driver.find_element_by_xpath("//tr[contains(@class,'data')]/td[3]/pre[@class='data']").text, r"^SELECT datname, usename, [\s\S]*FROM pg_catalog\.pg_stat_activity[\s\S]*WHERE datname='ppatests_db'[\s\S]*ORDER BY usename,[\s\S]*pid$")
+        self.assertEqual("" + t['strcancel'] + "", driver.find_element_by_xpath("//tr[contains(@class,'data')]/td[text()='admin_user']/../td[5]").text.strip())
+        self.assertEqual("" + t['strkill'] + "", driver.find_element_by_xpath("//tr[contains(@class,'data')]/td[text()='admin_user']/../td[6]").text.strip())
+        driver.find_element_by_link_text("" + t['strlocks'] + "").click()
+        driver.find_element_by_xpath("//a[@id='control']").click()
+        self.assertEqual("" + t['strstart'] + "", driver.find_element_by_xpath("//a[@id='control']").text.strip())
+        self.assertEqual("" + t['strschema'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strschema'] + "' and @class='data']/../th[1]").text.strip())
+        self.assertEqual("" + t['strtablename'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strschema'] + "' and @class='data']/../th[2]").text.strip())
+        self.assertEqual("" + t['strvirtualtransaction'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strschema'] + "' and @class='data']/../th[3]").text.strip())
+        self.assertEqual("" + t['strtransaction'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strschema'] + "' and @class='data']/../th[4]").text.strip())
+        self.assertEqual("" + t['strprocessid'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strschema'] + "' and @class='data']/../th[5]").text.strip())
+        self.assertEqual("" + t['strmode'] + "", driver.find_element_by_xpath("//tr/th[text()='" + t['strschema'] + "' and @class='data']/../th[6]").text.strip())
+        self.assertEqual(driver.find_element_by_xpath("//tr/th[text()='" + t['strschema'] + "' and @class='data']/../th[7]").text, r"Is lock held?")
+        self.assertEqual("pg_catalog", driver.find_element_by_xpath("//tr/td[1 and text()='pg_catalog']/../td[2 and text()='pg_class']/../td[1]").text.strip())
+        self.assertEqual("pg_class", driver.find_element_by_xpath("//tr/td[1 and text()='pg_catalog']/../td[2 and text()='pg_class']/../td[2]").text.strip())
+        self.assertEqual("AccessShareLock", driver.find_element_by_xpath("//tr/td[1 and text()='pg_catalog']/../td[2 and text()='pg_class']/../td[6]").text.strip())
+        self.assertEqual("" + t['stryes'] + "", driver.find_element_by_xpath("//tr/td[1 and text()='pg_catalog']/../td[2 and text()='pg_class']/../td[7]").text.strip())
+        driver.find_element_by_link_text("" + t['stradmin'] + "").click()
+        self.assertRegexpMatches(driver.find_element_by_xpath("//tr/th[text()='" + t['strvacuum'] + "' and @class='data']/../th[1]").text, r"^" + t['strvacuum'] + "[\s\S]*$")
+        self.assertRegexpMatches(driver.find_element_by_xpath("//tr/th[text()='" + t['strvacuum'] + "' and @class='data']/../th[2]").text, r"^" + t['stranalyze'] + "[\s\S]*$")
+        self.assertRegexpMatches(driver.find_element_by_xpath("//tr/th[text()='" + t['strvacuum'] + "' and @class='data']/../th[3]").text, r"^" + t['strclusterindex'] + "[\s\S]*$")
+        self.assertRegexpMatches(driver.find_element_by_xpath("//tr/th[text()='" + t['strvacuum'] + "' and @class='data']/../th[4]").text, r"^" + t['strreindex'] + "[\s\S]*$")
+        self.assertEqual("" + t['strvacuumpertable'] + "", driver.find_element_by_xpath("//h2").text.strip())
+        driver.find_element_by_xpath("//input[@value='" + t['strvacuum'] + "']").click()
+        self.assertRegexpMatches(driver.find_element_by_xpath("//h2").text, r"^" + t['strvacuum'] + "[\s\S]*$")
+        self.assertEqual(driver.find_element_by_xpath("//p").text, "" + (t['strconfvacuumdatabase'] % ('ppatests_db',)) + "")
+        if not driver.find_element_by_xpath("//input[@name='vacuum_full']").is_selected():
+            driver.find_element_by_xpath("//input[@name='vacuum_full']").click()
+        if not driver.find_element_by_xpath("//input[@name='vacuum_analyze']").is_selected():
+            driver.find_element_by_xpath("//input[@name='vacuum_analyze']").click()
+        if not driver.find_element_by_xpath("//input[@name='vacuum_freeze']").is_selected():
+            driver.find_element_by_xpath("//input[@name='vacuum_freeze']").click()
+        driver.find_element_by_xpath("//input[@value='" + t['strvacuum'] + "']").click()
+        self.assertEqual("" + t['strvacuumgood'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_xpath("//input[@value='" + t['stranalyze'] + "']").click()
+        self.assertRegexpMatches(driver.find_element_by_xpath("//h2").text, r"^" + t['stranalyze'] + "[\s\S]*$")
+        self.assertEqual(driver.find_element_by_xpath("//p").text, "" + (t['strconfanalyzedatabase'] % ('ppatests_db',)) + "")
+        driver.find_element_by_xpath("//input[@value='" + t['stranalyze'] + "']").click()
+        self.assertEqual("" + t['stranalyzegood'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_xpath("//input[@value='" + t['strclusterindex'] + "']").click()
+        self.assertRegexpMatches(driver.find_element_by_xpath("//h2").text, r"^" + t['strclusterindex'] + "[\s\S]*$")
+        self.assertEqual(driver.find_element_by_xpath("//p").text, "" + (t['strconfclusterdatabase'] % ('ppatests_db',)) + "")
+        driver.find_element_by_xpath("//input[@value='" + t['strclusterindex'] + "']").click()
+        self.assertEqual("" + t['strclusteredgood'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_xpath("//input[@value='" + t['strreindex'] + "']").click()
+        self.assertRegexpMatches(driver.find_element_by_xpath("//h2").text, r"^" + t['strreindex'] + "[\s\S]*$")
+        self.assertEqual(driver.find_element_by_xpath("//p").text, "" + (t['strconfreindexdatabase'] % ('ppatests_db',)) + "")
+        driver.find_element_by_xpath("//input[@value='" + t['strreindex'] + "']").click()
+        self.assertEqual("" + t['strreindexgood'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_link_text("" + t['strschemas'] + "").click()
+        driver.find_element_by_link_text("public").click()
+        driver.find_element_by_link_text("" + t['strtables'] + "").click()
+        driver.find_element_by_link_text("student").click()
+        driver.find_element_by_link_text("" + t['stradmin'] + "").click()
+        self.assertRegexpMatches(driver.find_element_by_xpath("//tr/th[text()='" + t['strvacuum'] + "' and @class='data']/../th[1]").text, r"^" + t['strvacuum'] + "[\s\S]*$")
+        self.assertRegexpMatches(driver.find_element_by_xpath("//tr/th[text()='" + t['strvacuum'] + "' and @class='data']/../th[2]").text, r"^" + t['stranalyze'] + "[\s\S]*$")
+        self.assertRegexpMatches(driver.find_element_by_xpath("//tr/th[text()='" + t['strvacuum'] + "' and @class='data']/../th[3]").text, r"^" + t['strclusterindex'] + "[\s\S]*$")
+        self.assertRegexpMatches(driver.find_element_by_xpath("//tr/th[text()='" + t['strvacuum'] + "' and @class='data']/../th[4]").text, r"^" + t['strreindex'] + "[\s\S]*$")
+        driver.find_element_by_xpath("//input[@value='" + t['strvacuum'] + "']").click()
+        self.assertRegexpMatches(driver.find_element_by_xpath("//h2").text, r"^" + t['strvacuum'] + "[\s\S]*$")
+        self.assertEqual(driver.find_element_by_xpath("//p").text, "" + (t['strconfvacuumtable'] % ('student',)) + "")
+        if not driver.find_element_by_xpath("//input[@name='vacuum_full']").is_selected():
+            driver.find_element_by_xpath("//input[@name='vacuum_full']").click()
+        if not driver.find_element_by_xpath("//input[@name='vacuum_analyze']").is_selected():
+            driver.find_element_by_xpath("//input[@name='vacuum_analyze']").click()
+        if not driver.find_element_by_xpath("//input[@name='vacuum_freeze']").is_selected():
+            driver.find_element_by_xpath("//input[@name='vacuum_freeze']").click()
+        driver.find_element_by_xpath("//input[@value='" + t['strvacuum'] + "']").click()
+        self.assertEqual("" + t['strvacuumgood'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_xpath("//input[@value='" + t['stranalyze'] + "']").click()
+        self.assertRegexpMatches(driver.find_element_by_xpath("//h2").text, r"^" + t['stranalyze'] + "[\s\S]*$")
+        self.assertEqual(driver.find_element_by_xpath("//p").text, "" + (t['strconfanalyzetable'] % ('student',)) + "")
+        driver.find_element_by_xpath("//input[@value='" + t['stranalyze'] + "']").click()
+        self.assertEqual("" + t['stranalyzegood'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_xpath("//input[@value='" + t['strreindex'] + "']").click()
+        self.assertRegexpMatches(driver.find_element_by_xpath("//h2").text, r"^" + t['strreindex'] + "[\s\S]*$")
+        self.assertEqual(driver.find_element_by_xpath("//p").text, "" + (t['strconfreindextable'] % ('student',)) + "")
+        driver.find_element_by_xpath("//input[@value='" + t['strreindex'] + "']").click()
+        self.assertEqual("" + t['strreindexgood'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        self.assertEqual("" + t['strvacuumpertable'] + "", driver.find_element_by_xpath("//h2").text)
+        driver.find_element_by_link_text("" + t['straddvacuumtable'] + "").click()
+        self.assertEqual("Edit autovacuum setup for table student", driver.find_element_by_xpath("//h2").text)
+        if not driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_enabled' and @value='off']").is_selected():
+            driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_enabled' and @value='off']").click()
+        driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_vacuum_threshold']").clear()
+        driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_vacuum_threshold']").send_keys("55")
+        driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_vacuum_scale_factor']").clear()
+        driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_vacuum_scale_factor']").send_keys("0.25")
+        driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_analyze_threshold']").clear()
+        driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_analyze_threshold']").send_keys("55")
+        driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_analyze_scale_factor']").clear()
+        driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_analyze_scale_factor']").send_keys("0.15")
+        driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_vacuum_cost_delay']").clear()
+        driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_vacuum_cost_delay']").send_keys("10")
+        driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_vacuum_cost_limit']").clear()
+        driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_vacuum_cost_limit']").send_keys("200")
+        driver.find_element_by_xpath("//input[@value='" + t['strsave'] + "']").click()
+        self.assertEqual("" + t['strenabled'] + "", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../th[1]").text)
+        self.assertEqual("" + t['strvacuumbasethreshold'] + "", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../th[2]").text)
+        self.assertEqual("" + t['strvacuumscalefactor'] + "", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../th[3]").text)
+        self.assertEqual("" + t['stranalybasethreshold'] + "", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../th[4]").text)
+        self.assertEqual("" + t['stranalyzescalefactor'] + "", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../th[5]").text)
+        self.assertEqual("" + t['strvacuumcostdelay'] + "", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../th[6]").text)
+        self.assertEqual("" + t['strvacuumcostlimit'] + "", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../th[7]").text)
+        self.assertEqual("" + t['stractions'] + "", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../th[8]").text)
+        self.assertEqual("off", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[1]").text)
+        self.assertEqual("55", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[2]").text)
+        self.assertEqual("0.25", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[3]").text)
+        self.assertEqual("55", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[4]").text)
+        self.assertEqual("0.15", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[5]").text)
+        self.assertEqual("10ms", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[6]").text)
+        self.assertEqual("200", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[7]").text)
+        self.assertEqual("" + t['stredit'] + "", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[8]").text)
+        self.assertEqual("" + t['strdelete'] + "", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[9]").text)
+        driver.find_element_by_xpath("//tr/td/a[text()='" + t['stredit'] + "']").click()
+        if not driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_enabled' and @value='on']").is_selected():
+            driver.find_element_by_xpath("//tr/td/input[@name='autovacuum_enabled' and @value='on']").click()
+        driver.find_element_by_xpath("//input[@value='" + t['strsave'] + "']").click()
+        self.assertEqual("on", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[1]").text)
+        driver.find_element_by_xpath("//tr/td[@class='crumb']/a[@title='" + t['strdatabase'] + "']").click()
+        driver.find_element_by_link_text("" + t['stradmin'] + "").click()
+        self.assertEqual("" + t['strvacuumpertable'] + "", driver.find_element_by_xpath("//h2").text)
+        self.assertEqual("" + t['strschema'] + "", driver.find_element_by_xpath("//tr/th[3 and text()='" + t['strenabled'] + "' and @class='data']/../th[1]").text)
+        self.assertEqual("" + t['strtable'] + "", driver.find_element_by_xpath("//tr/th[3 and text()='" + t['strenabled'] + "' and @class='data']/../th[2]").text)
+        self.assertEqual("" + t['strenabled'] + "", driver.find_element_by_xpath("//tr/th[3 and text()='" + t['strenabled'] + "' and @class='data']/../th[3]").text)
+        self.assertEqual("" + t['strvacuumbasethreshold'] + "", driver.find_element_by_xpath("//tr/th[3 and text()='" + t['strenabled'] + "' and @class='data']/../th[4]").text)
+        self.assertEqual("" + t['strvacuumscalefactor'] + "", driver.find_element_by_xpath("//tr/th[3 and text()='" + t['strenabled'] + "' and @class='data']/../th[5]").text)
+        self.assertEqual("" + t['stranalybasethreshold'] + "", driver.find_element_by_xpath("//tr/th[3 and text()='" + t['strenabled'] + "' and @class='data']/../th[6]").text)
+        self.assertEqual("" + t['stranalyzescalefactor'] + "", driver.find_element_by_xpath("//tr/th[3 and text()='" + t['strenabled'] + "' and @class='data']/../th[7]").text)
+        self.assertEqual("" + t['strvacuumcostdelay'] + "", driver.find_element_by_xpath("//tr/th[3 and text()='" + t['strenabled'] + "' and @class='data']/../th[8]").text)
+        self.assertEqual("" + t['strvacuumcostlimit'] + "", driver.find_element_by_xpath("//tr/th[3 and text()='" + t['strenabled'] + "' and @class='data']/../th[9]").text)
+        self.assertEqual("" + t['stractions'] + "", driver.find_element_by_xpath("//tr/th[3 and text()='" + t['strenabled'] + "' and @class='data']/../th[10]").text)
+        self.assertEqual("public", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[1]").text)
+        self.assertEqual("student", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[2]").text)
+        self.assertEqual("on", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[3]").text)
+        self.assertEqual("55", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[4]").text)
+        self.assertEqual("0.25", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[5]").text)
+        self.assertEqual("55", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[6]").text)
+        self.assertEqual("0.15", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[7]").text)
+        self.assertEqual("10ms", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[8]").text)
+        self.assertEqual("200", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[9]").text)
+        self.assertEqual("" + t['stredit'] + "", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[10]").text)
+        self.assertEqual("" + t['strdelete'] + "", driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[11]").text)
+        driver.find_element_by_xpath("//tr/th[1 and text()='" + t['strenabled'] + "' and @class='data']/../../tr[2]/td[11]/a").click()
+        self.assertRegexpMatches(driver.find_element_by_xpath("//p").text, r"^Delete autovacuum setup for table [\s\S]*student[\s\S]* [\s\S]$")
+        driver.find_element_by_xpath("//input[@value='" + t['stryes'] + "']").click()
+        self.assertEqual("" + t['strnovacuumconf'] + "", driver.find_element_by_xpath("//p[text()='" + t['strnovacuumconf'] + "']").text)
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::tr/td[1]/a/span[@class='label' and text()='phpPgAdmin']").click()
+        driver.find_element_by_link_text("" + t['strservers'] + "").click()
+        driver.find_element_by_xpath("//tr/td/a[text()='PostgreSQL']/../../td/a[text()='" + t['strlogout'] + "']").click()
+        self.assertEqual("" + (t['strlogoutmsg'] % ('PostgreSQL',)) + "", driver.find_element_by_xpath("//p[@class='message']").text)
+    
+    def is_element_present(self, how, what):
+        try: self.driver.find_element(by=how, value=what)
+        except NoSuchElementException as e: return False
+        return True
+    
+    def tearDown(self):
+        self.driver.quit()
+        self.assertEqual([], self.verificationErrors)
+
+if __name__ == "__main__":
+    unittest.main()

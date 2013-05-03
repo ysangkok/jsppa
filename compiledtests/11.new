@@ -1,0 +1,85 @@
+# -*- coding: utf-8 -*-
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
+
+import sys
+if sys.version_info[0] < 3:
+  from urllib2 import urlopen
+  langs = urlopen("http://localhost:8800/jsppa/languages.php").read()
+else:
+  from urllib.request import urlopen
+  langs = str(urlopen("http://localhost:8800/jsppa/languages.php").read(),'utf-8')
+import json
+ke = "__LANGUAGE__";
+if ke == "__" + "LANGUAGE__": ke = "english"
+
+orgeng = json.loads(langs)["texts"]["english"]
+orgcho = json.loads(langs)["texts"][ke]
+for (k,v) in orgeng.items():
+  if not orgcho.has_key(k):
+    orgcho[k] = v
+
+t = orgcho
+
+
+import unittest, time, re
+
+class PostgreSQLIndexTests(unittest.TestCase):
+    def setUp(self):
+        self.driver = webdriver.Firefox()
+        self.driver.implicitly_wait(5)
+        self.base_url = "http://localhost:8800/"
+        self.verificationErrors = []
+    
+    def test_postgre_s_q_l_index_tests(self):
+        driver = self.driver
+        driver.get("http://localhost:8800/ppa/intro.php")
+        Select(driver.find_element_by_name("language")).select_by_visible_text("" + t['applang'] + "")
+        driver.get("http://localhost:8800/ppa/login.php?server=localhost:5432:allow&subject=server")
+        driver.find_element_by_xpath("//input[@name='loginUsername']").clear()
+        driver.find_element_by_xpath("//input[@name='loginUsername']").send_keys("admin_user")
+        driver.find_element_by_xpath("//input[@id='loginPassword']").clear()
+        driver.find_element_by_xpath("//input[@id='loginPassword']").send_keys("super")
+        driver.find_element_by_name("loginSubmit").click()
+        self.assertEqual("admin_user", driver.find_element_by_xpath("//div[@class='topbar']/descendant::span[@class='username']").text)
+        driver.find_element_by_link_text("" + t['strdatabases'] + "").click()
+        driver.find_element_by_link_text("ppatests_db").click()
+        driver.find_element_by_link_text("" + t['strschemas'] + "").click()
+        driver.find_element_by_link_text("public").click()
+        driver.find_element_by_link_text("" + t['strtables'] + "").click()
+        driver.find_element_by_link_text("student").click()
+        driver.find_element_by_link_text("" + t['strindexes'] + "").click()
+        driver.find_element_by_link_text("" + t['strcreateindex'] + "").click()
+        driver.find_element_by_name("formIndexName").clear()
+        driver.find_element_by_name("formIndexName").send_keys("name_unique")
+        driver.find_element_by_name("TableColumnList").find_elements_by_xpath("option[contains(text(),'name')]")[0].click() # JANUS
+        driver.find_element_by_name("add").click()
+        driver.find_element_by_xpath("//input[@value='" + t['strcreate'] + "']").click()
+        self.assertEqual("" + t['strindexcreated'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_link_text("" + t['strindexes'] + "").click()
+        driver.find_element_by_xpath("//tr/td[text()='name_unique']/../td/a[text()='" + t['strclusterindex'] + "']").click()
+        driver.find_element_by_name("cluster").click()
+        self.assertEqual(t['strclusteredgood'] + " " + t['stranalyzegood'], driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_link_text("" + t['strindexes'] + "").click()
+        driver.find_element_by_xpath("//tr/td[text()='name_unique']/../td/a[text()='" + t['strdrop'] + "']").click()
+        driver.find_element_by_name("cascade").click()
+        driver.find_element_by_name("drop").click()
+        self.assertEqual("" + t['strindexdropped'] + "", driver.find_element_by_xpath("//p[@class='message']").text)
+        driver.find_element_by_xpath("//div[@class='trail']/descendant::tr/td[1]/a/span[@class='label' and text()='phpPgAdmin']").click()
+        driver.find_element_by_link_text("" + t['strservers'] + "").click()
+        driver.find_element_by_xpath("//tr/td/a[text()='PostgreSQL']/../../td/a[text()='" + t['strlogout'] + "']").click()
+        self.assertEqual("" + (t['strlogoutmsg'] % ('PostgreSQL',)) + "", driver.find_element_by_xpath("//p[@class='message']").text)
+    
+    def is_element_present(self, how, what):
+        try: self.driver.find_element(by=how, value=what)
+        except NoSuchElementException as e: return False
+        return True
+    
+    def tearDown(self):
+        self.driver.quit()
+        self.assertEqual([], self.verificationErrors)
+
+if __name__ == "__main__":
+    unittest.main()
